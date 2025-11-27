@@ -30,4 +30,12 @@ class LibraryViewModel(application: Application) : AndroidViewModel(application)
             _tracks.postValue(repo.listTracks())
         }
     }
+
+    fun addTrack(displayName: String, uriString: String, durationMs: Long = 0L, onComplete: ((Long) -> Unit)? = null) {
+        viewModelScope.launch {
+            val id = repo.insertTrack(displayName, uriString, durationMs)
+            _tracks.postValue(repo.listTracks())
+            onComplete?.invoke(id)
+        }
+    }
 }
