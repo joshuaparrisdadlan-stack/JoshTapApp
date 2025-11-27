@@ -22,6 +22,7 @@ class NfcWriteActivity : AppCompatActivity() {
     private lateinit var etCardToken: EditText
     private lateinit var tvWriteStatus: TextView
     private lateinit var btnWriteCard: Button
+    private lateinit var btnBackHome: Button
     private var pendingToken: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,6 +32,10 @@ class NfcWriteActivity : AppCompatActivity() {
         etCardToken = findViewById(R.id.etCardToken)
         tvWriteStatus = findViewById(R.id.tvWriteStatus)
         btnWriteCard = findViewById(R.id.btnWriteCard)
+
+        // Back button
+        btnBackHome = findViewById(R.id.btnBackHome)
+        btnBackHome.setOnClickListener { finish() }
 
         btnWriteCard.setOnClickListener {
             val token = etCardToken.text.toString().trim()
