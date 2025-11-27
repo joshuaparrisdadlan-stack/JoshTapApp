@@ -51,3 +51,4 @@ layout fragment_library
 layout fragment_play
 layout item_card
 layout item_track
+string app_name

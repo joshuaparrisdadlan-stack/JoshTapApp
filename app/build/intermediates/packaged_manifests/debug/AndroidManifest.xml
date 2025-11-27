@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.parris.yotolite"
+    package="com.parris.joshtap"
     android:versionCode="1"
     android:versionName="0.1" >
 
@@ -13,6 +13,10 @@
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     <!-- Legacy permission for older Android versions (pre-API 33) -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!-- Fallback write permission for older devices when exporting to Downloads -->
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
 
     <uses-feature
         android:name="android.hardware.nfc"
@@ -21,21 +25,21 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <permission
-        android:name="com.parris.yotolite.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+        android:name="com.parris.joshtap.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
         android:protectionLevel="signature" />
 
-    <uses-permission android:name="com.parris.yotolite.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+    <uses-permission android:name="com.parris.joshtap.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
 
     <application
-        android:name="com.parris.yotolite.MyApplication"
+        android:name="com.parris.joshtap.MyApplication"
         android:allowBackup="true"
         android:appComponentFactory="androidx.core.app.CoreComponentFactory"
         android:debuggable="true"
         android:extractNativeLibs="false"
-        android:label="YotoLite"
+        android:label="@string/app_name"
         android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar" >
         <activity
-            android:name="com.parris.yotolite.onboarding.OnboardingActivity"
+            android:name="com.parris.joshtap.onboarding.OnboardingActivity"
             android:exported="true"
             android:launchMode="singleTop" >
             <intent-filter>
@@ -45,11 +49,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.parris.yotolite.MainActivity"
+            android:name="com.parris.joshtap.MainActivity"
             android:exported="true"
             android:launchMode="singleTop" />
         <activity
-            android:name="com.parris.yotolite.nfc.NfcPlayActivity"
+            android:name="com.parris.joshtap.nfc.NfcPlayActivity"
             android:exported="true"
             android:launchMode="singleTop" >
             <intent-filter>
@@ -57,7 +61,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.parris.yotolite.nfc.NfcWriteActivity"
+            android:name="com.parris.joshtap.nfc.NfcWriteActivity"
             android:exported="true" />
 
         <service
@@ -126,13 +130,13 @@
 
         <provider
             android:name="com.google.firebase.provider.FirebaseInitProvider"
-            android:authorities="com.parris.yotolite.firebaseinitprovider"
+            android:authorities="com.parris.joshtap.firebaseinitprovider"
             android:directBootAware="true"
             android:exported="false"
             android:initOrder="100" />
         <provider
             android:name="androidx.startup.InitializationProvider"
-            android:authorities="com.parris.yotolite.androidx-startup"
+            android:authorities="com.parris.joshtap.androidx-startup"
             android:exported="false" >
             <meta-data
                 android:name="androidx.emoji2.text.EmojiCompatInitializer"

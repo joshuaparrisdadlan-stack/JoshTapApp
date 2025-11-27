@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.parris.yotolite.app-mergeDebugResources-43:/values-en-rAU/values-en-rAU.xml",
+            "outputFile": "com.parris.joshtap.app-mergeDebugResources-43:/values-en-rAU/values-en-rAU.xml",
             "map": [
                 {
                     "source": "C:\\Users\\joshu\\.gradle\\caches\\transforms-3\\e88e3b67f91388be25d00b39f341037c\\transformed\\browser-1.4.0\\res\\values-en-rAU\\values-en-rAU.xml",
