@@ -2,6 +2,7 @@ package com.parris.yotolite.backup
 
 import android.content.Context
 import android.net.Uri
+import android.os.Environment
 import com.parris.yotolite.util.AppLog
 import com.parris.yotolite.data.AppDatabase
 import com.parris.yotolite.data.CardEntity
@@ -53,7 +54,11 @@ object BackupManager {
             val jsonData = convertToJson(data)
 
             val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-            val zipFile = File(context.cacheDir, "yotolite_backup_$timestamp.zip")
+
+            // Write to public Downloads directory so exported file is visible to user
+            val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            if (!downloadsDir.exists()) downloadsDir.mkdirs()
+            val zipFile = File(downloadsDir, "yotolite_backup_$timestamp.zip")
 
             ZipOutputStream(zipFile.outputStream()).use { zos ->
                 val entry = ZipEntry(METADATA_FILE)

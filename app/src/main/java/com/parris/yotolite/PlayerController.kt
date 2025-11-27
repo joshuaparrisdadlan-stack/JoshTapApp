@@ -91,23 +91,23 @@ object PlayerController {
 
     fun next() {
         val p = player ?: return
-        if (p.hasNext()) {
+        if (p.hasNextMediaItem()) {
             p.seekToNext()
             _currentIndex.value = p.currentMediaItemIndex
             _currentTitle.value = p.currentMediaItem?.localConfiguration?.uri?.lastPathSegment ?: "Track ${_currentIndex.value + 1}"
-            _hasNext.value = p.hasNext()
-            _hasPrevious.value = p.hasPrevious()
+            _hasNext.value = p.hasNextMediaItem()
+            _hasPrevious.value = p.hasPreviousMediaItem()
         }
     }
 
     fun prev() {
         val p = player ?: return
-        if (p.hasPrevious()) {
+        if (p.hasPreviousMediaItem()) {
             p.seekToPrevious()
             _currentIndex.value = p.currentMediaItemIndex
             _currentTitle.value = p.currentMediaItem?.localConfiguration?.uri?.lastPathSegment ?: "Track ${_currentIndex.value + 1}"
-            _hasNext.value = p.hasNext()
-            _hasPrevious.value = p.hasPrevious()
+            _hasNext.value = p.hasNextMediaItem()
+            _hasPrevious.value = p.hasPreviousMediaItem()
         }
     }
 
@@ -141,8 +141,8 @@ object PlayerController {
                 val p = player ?: return
                 _currentIndex.value = p.currentMediaItemIndex
                 _currentTitle.value = mediaItem?.localConfiguration?.uri?.lastPathSegment ?: "Track ${_currentIndex.value + 1}"
-                _hasNext.value = p.hasNext()
-                _hasPrevious.value = p.hasPrevious()
+                _hasNext.value = p.hasNextMediaItem()
+                _hasPrevious.value = p.hasPreviousMediaItem()
                 AppLog.d(TAG, "Media item transition to: ${_currentTitle.value}")
             }
         }

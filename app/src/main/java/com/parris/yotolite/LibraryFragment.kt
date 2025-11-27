@@ -76,9 +76,24 @@ class LibraryFragment : Fragment() {
         val adapter = TrackAdapter(onItemClick = { track ->
             // show bottom sheet with actions
             com.parris.yotolite.ui.TrackActionBottomSheet.show(requireContext(), parentFragmentManager, track.displayName, track.localUri, track.id) { cardId ->
-                // show snackbar confirmation after adding
-                view?.let { root ->
-                    com.google.android.material.snackbar.Snackbar.make(root, "Added to card", com.google.android.material.snackbar.Snackbar.LENGTH_SHORT).show()
+                // show snackbar confirmation after adding with card name (load from DB)
+                lifecycleScope.launch {
+                    try {
+                        val db = com.parris.yotolite.data.AppDatabase.getInstance(requireContext())
+                        val cardWith = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) { db.appDao().getCardWithTracksById(cardId) }
+                        val cardName = cardWith?.card?.name ?: "card"
+                        requireActivity().runOnUiThread {
+                            view?.let { root ->
+                                com.google.android.material.snackbar.Snackbar.make(root, "Added to $cardName", com.google.android.material.snackbar.Snackbar.LENGTH_SHORT).show()
+                            }
+                        }
+                    } catch (e: Exception) {
+                        requireActivity().runOnUiThread {
+                            view?.let { root ->
+                                com.google.android.material.snackbar.Snackbar.make(root, "Added to card", com.google.android.material.snackbar.Snackbar.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
                 }
             }
         })
