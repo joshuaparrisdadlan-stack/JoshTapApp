@@ -4,8 +4,12 @@ plugins {
     id 'kotlin-kapt'
 }
 
-// Apply Google services plugin to enable Firebase features (requires google-services.json)
-apply plugin: 'com.google.gms.google-services'
+// Apply Google services plugin to enable Firebase features if config is present
+if (file("google-services.json").exists()) {
+    apply plugin: 'com.google.gms.google-services'
+} else {
+    println "google-services.json not found; skipping google-services plugin"
+}
 
 android {
     namespace "com.parris.yotolite"
