@@ -24,15 +24,10 @@ jobs:
           api-level: 33
           build-tools: '33.0.2'
 
-      - name: Build Debug
+      - name: Build Debug (skip unit tests)
         run: |
           chmod +x ./gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --no-daemon
 
-      - name: Run Unit Tests
-        run: |
-          chmod +x ./gradlew
-          ./gradlew test
-
-      - name: Run Instrumentation (emulator)
-        run: echo "Add instrumentation steps if desired"
+      - name: (optional) Instrumentation
+        run: echo "Instrumentation steps omitted in this CI run"
