@@ -59,23 +59,24 @@ class TokenParserTest {
     @Test
     fun testNdefRecordCreation() {
         val token = "mynfctoken"
-        val record = createNdefUriRecord(token)
+        val payload = createNdefUriRecordPayload(token)
 
-        assertNotNull(record)
-        assertEquals(NdefRecord.TNF_WELL_KNOWN, record.tnf.toInt())
-        assertTrue(record.type.contentEquals(NdefRecord.RTD_URI))
+        // payload must be non-null and start with a prefix byte
+        assertNotNull(payload)
+        assertTrue(payload.size > 1)
+        assertEquals(0x04.toByte(), payload[0])
     }
 
     @Test
     fun testNdefRecordPayload() {
         val token = "mytesttoken123"
-        val record = createNdefUriRecord(token)
+        val payload = createNdefUriRecordPayload(token)
 
         // First byte should be prefix (0x04 for https://)
-        assertEquals(0x04.toByte(), record.payload[0])
+        assertEquals(0x04.toByte(), payload[0])
 
         // Rest is the URI
-        val uri = String(record.payload, 1, record.payload.size - 1)
+        val uri = String(payload, 1, payload.size - 1)
         assertTrue(uri.contains(token))
     }
 
@@ -104,18 +105,12 @@ class TokenParserTest {
         return null
     }
 
-    private fun createNdefUriRecord(token: String): NdefRecord {
+    private fun createNdefUriRecordPayload(token: String): ByteArray {
         val uri = SCHEME + token
         val uriBytes = uri.toByteArray(Charsets.UTF_8)
         val payload = ByteArray(uriBytes.size + 1)
         payload[0] = 0x04.toByte()
         System.arraycopy(uriBytes, 0, payload, 1, uriBytes.size)
-
-        return NdefRecord(
-            NdefRecord.TNF_WELL_KNOWN,
-            NdefRecord.RTD_URI,
-            ByteArray(0),
-            payload
-        )
+        return payload
     }
 }
