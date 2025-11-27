@@ -74,7 +74,7 @@ class NfcWriteActivity : AppCompatActivity() {
 
     private fun handleIntent(intent: Intent) {
         if (intent.action == NfcAdapter.ACTION_TAG_DISCOVERED) {
-            val tag = intent.getParcelableExtra<Tag>(NfcAdapter.EXTRA_TAG)
+            val tag: Tag? = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG, Tag::class.java)
             if (tag != null && pendingToken != null) {
                 lifecycleScope.launch {
                     writeNfcTag(tag, pendingToken!!)
