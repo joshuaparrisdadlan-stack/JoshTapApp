@@ -18,6 +18,12 @@ jobs:
           distribution: temurin
           java-version: '11'
 
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v2
+        with:
+          api-level: 33
+          build-tools: '33.0.2'
+
       - name: Install Gradle (if no wrapper present)
         run: |
           sudo apt-get update
