@@ -10,10 +10,14 @@ import android.widget.ProgressBar
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import com.google.android.material.snackbar.Snackbar
 import com.parris.joshtap.nfc.NfcPlayActivity
 import com.parris.joshtap.nfc.NfcWriteActivity
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.collect
 
 class PlayFragment : Fragment() {
     private var isUserSeeking = false
@@ -33,40 +37,55 @@ class PlayFragment : Fragment() {
         val btnNfcPlay = view.findViewById<Button>(R.id.btnNfcPlay)
         val btnNfcWrite = view.findViewById<Button>(R.id.btnNfcWrite)
 
-        // Observe player state
+        // Observe player state and errors in lifecycle-safe collectors
         viewLifecycleOwner.lifecycleScope.launch {
-            PlayerController.isPlaying.collect { isPlaying ->
-                btnPlayPause.text = if (isPlaying) "Pause" else "Play"
-            }
-        }
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                launch {
+                    PlayerController.isPlaying.collect { isPlaying ->
+                        btnPlayPause.text = if (isPlaying) "Pause" else "Play"
+                    }
+                }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            PlayerController.currentTitle.collect { title ->
-                tvNowPlaying.text = "Now Playing: ${title ?: "-"}"
-            }
-        }
+                launch {
+                    PlayerController.currentTitle.collect { title ->
+                        tvNowPlaying.text = "Now Playing: ${title ?: "-"}"
+                    }
+                }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            PlayerController.currentIndex.collect { index ->
-                tvDebug.text = "Track ${index + 1}"
-            }
-        }
+                launch {
+                    PlayerController.currentIndex.collect { index ->
+                        tvDebug.text = "Track ${index + 1}"
+                    }
+                }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            PlayerController.duration.collect { duration ->
-                tvDebug.text = "${tvDebug.text}\nDuration: ${formatTime(duration)}"
-            }
-        }
+                launch {
+                    PlayerController.duration.collect { duration ->
+                        tvDebug.text = "${tvDebug.text}\nDuration: ${formatTime(duration)}"
+                    }
+                }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            PlayerController.hasNext.collect { hasNext ->
-                btnNext.isEnabled = hasNext
-            }
-        }
+                launch {
+                    PlayerController.hasNext.collect { hasNext ->
+                        btnNext.isEnabled = hasNext
+                    }
+                }
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            PlayerController.hasPrevious.collect { hasPrev ->
-                btnPrev.isEnabled = hasPrev
+                launch {
+                    PlayerController.hasPrevious.collect { hasPrev ->
+                        btnPrev.isEnabled = hasPrev
+                    }
+                }
+
+                // collect errors and show as Snackbar
+                launch {
+                    PlayerController.errorMessage.collect { err ->
+                        if (!err.isNullOrBlank()) {
+                            val parent = view.findViewById<View>(android.R.id.content) ?: view
+                            Snackbar.make(parent, err, Snackbar.LENGTH_LONG).show()
+                            PlayerController.clearError()
+                        }
+                    }
+                }
             }
         }
 
@@ -96,6 +115,16 @@ class PlayFragment : Fragment() {
         }
 
         PlayerController.initialize(requireContext())
+    }
+
+    override fun onResume() {
+        super.onResume()
+        PlayerController.resumeUpdates()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        PlayerController.pauseUpdates()
     }
 
     private fun formatTime(millis: Long): String {
