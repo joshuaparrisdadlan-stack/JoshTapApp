@@ -21,4 +21,9 @@ class MainActivity : AppCompatActivity() {
         // Initialize PlayerController early
         PlayerController.initialize(this)
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        PlayerController.release()
+    }
 }
