@@ -1,0 +1,1563 @@
+﻿Yep — that’s the real goal: tap card → music plays, and you can load music onto cards.
+To make it “Yoto-like” and avoid every issue so far (Chrome/WebNFC, other apps stealing scans), the core trick is:
+✅ The card stores an NDEF URL
+Not a UID-only workflow.
+* Android app writes the tag with a URL like:
+https://your-site.example/t/<CARD_TOKEN>
+* When you tap:
+   * Android app (native NFC) opens and plays immediately
+   * iPhone opens that URL (Safari). However: iOS Safari often blocks autoplay audio, so it may require one extra tap unless you also ship an iOS app.
+So: true Yoto experience on iPhone requires an iOS app. Web-only iPhone can be “tap → page opens → tap play”.
+________________
+
+
+MVP scope (so it actually ships)
+Android MVP (true “tap → plays” + write cards + upload music): ~8 prompts.
+ Android + iPhone native app (tap → plays on iPhone too): ~14–18 prompts.
+(We’ll keep prompts chunky and complete so you’re not stuck in infinite micro-steps.)
+________________
+
+
+Prompt 1 for VS Code (start-from-scratch, Yoto-style)
+Copy/paste this into VS Code AI:
+You are an expert Android (Kotlin) developer. Build a brand-new repo project called YotoLiteMVP (Android only) that provides a Yoto-like experience with NFC cards.
+Hard requirements (must avoid previous failures)
+   * DO NOT use Web NFC. No “Chrome required” checks.
+   * Use native Android NFC Reader Mode to prevent other apps stealing scans.
+   * Support reading + writing NDEF URI to Type 2 tags (e.g. MIFARE Ultralight EV1).
+   * Defensive coding: no crashes on null tags, locked tags, malformed NDEF.
+MVP user experience
+App has 3 tabs:
+   1. Play (Scan)
+
+      * Button: “Start Scanning” (enables Reader Mode)
+      * When a tag is tapped:
+      * If tag has an NDEF URL: resolve it to a track/playlist and play audio immediately in-app (Media3 ExoPlayer).
+      * If no NDEF: show “Card not set up yet” and offer to set it up.
+      2. Library
+
+         * Let user import audio files from device (storage picker).
+         * Store imported audio locally in app storage and list them with duration + play preview.
+         3. Cards
+
+            * Create a “Card” entry with name + choose one or more tracks from Library (playlist).
+            * Generate a unique CARD_TOKEN (random, URL-safe).
+            * Save mapping locally: CARD_TOKEN -> playlist (list of local file URIs) in Room DB.
+            * Button: “Write Card” which writes an NDEF URI record containing:
+BASE_URL + "/t/" + CARD_TOKEN
+ Default BASE_URL: https://shualparris.github.io/JoshNFCAudio
+Playback behavior
+               * When scanning reads a URL containing /t/<token>:
+               * Parse token
+               * Look up in Room
+               * Play the mapped playlist with Media3
+               * Show now-playing controls (play/pause/next/back).
+Diagnostics / reliability
+               * Show NFC availability + enabled status.
+               * Show last tag details: UID, NDEF URL, token parsed, mapping found/not found.
+               * Add “Copy debug log” button.
+               * Activity launchMode="singleTop" and proper handling of resume/new intent.
+Project constraints
+               * Kotlin
+               * Min SDK 24, Target SDK 35
+               * XML layouts (not Compose)
+               * One-activity architecture ok; add helper classes:
+               * NfcReader.kt (read + parse)
+               * NfcWriter.kt (write NDEF URI)
+               * AppDatabase.kt + DAO + entities (Room)
+               * AudioRepo.kt (imports audio, copies into safe internal storage)
+               * PlayerController.kt (Media3 playlist)
+Deliverables
+               * Full Android project under /YotoLiteMVP
+               * README.md with exact build + install steps:
+               * ./gradlew assembleDebug
+               * adb install -r ...app-debug.apk
+               * .vscode/tasks.json tasks:
+               * Build Debug APK
+               * Install to Device (adb)
+               * Include runtime permission handling for reading media on modern Android (gracefully).
+Now generate all files.
+________________
+
+
+If you’re happy with that, the next prompts (2–8) will be:
+               * Prompt 2: fix build issues + wire up Room entities properly
+               * Prompt 3: implement audio import safely across Android versions
+               * Prompt 4: implement Media3 playlist player UI
+               * Prompt 5: NFC write flow + “format if needed” handling
+               * Prompt 6: tighten scanning reliability + reduce duplicate scans
+               * Prompt 7: make releases (signed APK) + upgrade path
+               * Prompt 8: optional “cloud sync + iPhone web player”
+If you want the iPhone experience to be tap → plays immediately, tell me now and I’ll structure the plan toward a native iOS app instead of a Safari web player (because autoplay rules are the main blocker).
+Here you go — Prompt 2 (paste into VS Code). This one assumes Prompt 1 generated the project, and now we’re making sure it builds cleanly and the core architecture is wired correctly (Room + Media3 + tabs + basic screens), with no NFC yet.
+________________
+
+
+Prompt 2 (VS Code)
+You are an expert Android (Kotlin) engineer. You previously generated an Android project YotoLiteMVP (XML layouts, minSdk 24, targetSdk 35) with 3 tabs: Play, Library, Cards. Now:
+Goal
+Make the project compile, run, and show working navigation + scaffolding for:
+               * Room database (Card + Track + Playlist mapping)
+               * Media3 ExoPlayer playback controller (stubbed but functional)
+               * Library import UI (stubbed actions but UI exists)
+               * Cards UI (create card + assign tracks UI exists)
+Hard requirements
+               * Must build with ./gradlew assembleDebug without errors.
+               * Must run on Android 16 device (Samsung SM-A556E) and not crash on launch.
+               * Keep XML layouts (no Compose).
+               * Use AndroidX Navigation OR simple ViewPager2+TabLayout — choose whichever is simplest and stable.
+Implement / Fix
+               1. Project setup
+               * Ensure settings.gradle and app/build.gradle are correct.
+               * Add required dependencies:
+               * Room (runtime + ktx + kapt)
+               * Media3 ExoPlayer + session
+               * Material Components
+               * Enable kapt plugin.
+               * Ensure Proguard/R8 doesn’t break debug.
+               2. Database Create Room entities + DAO + database:
+               * TrackEntity:
+               * id (auto)
+               * displayName
+               * localUri (string)
+               * durationMs (long)
+               * CardEntity:
+               * id (auto)
+               * name
+               * token (unique string)
+               * createdAt
+               * CardTrackJoinEntity (many-to-many):
+               * cardId
+               * trackId
+               * position (int)
+               * DAO:
+               * insertTrack, listTracks
+               * insertCard, listCards
+               * setCardTracks(cardId, orderedTrackIds)
+               * getCardWithTracksByToken(token)
+               * Provide repository layer AppRepository with suspend functions.
+               * Provide singleton AppDatabase builder in Application class.
+               3. Player Create PlayerController using Media3:
+               * Singleton with ExoPlayer instance
+               * Methods: playTracks(list<Uri>), play(), pause(), next(), prev()
+               * Expose state via StateFlow:
+               * isPlaying
+               * currentTitle
+               * currentIndex
+               * Add a basic player control strip in Play screen:
+               * title text
+               * prev / play-pause / next buttons
+               * should actually work with test content (see below)
+               4. UI
+               * Implement MainActivity with TabLayout + ViewPager2.
+               * Create fragments:
+               * PlayFragment: shows “Start Scanning (disabled for now)” + player controls + debug box.
+               * LibraryFragment: list tracks from Room; button “Import audio” (no picker yet, just insert a demo track row for now).
+               * CardsFragment: list cards; create card dialog (name), generate token; allow assigning tracks (simple multi-select dialog), save mapping.
+               * Add one “Demo audio” entry:
+               * Include an MP3 in app/src/main/res/raw/demo.mp3 (a tiny placeholder file) OR if that’s not allowed, include a silent short asset and play it.
+               * Ensure playback works so we know Media3 is wired.
+               5. Quality
+               * No blocking main thread database calls.
+               * Use ViewModel + LiveData/Flow properly.
+               * Add log tags and a “Copy debug” button that copies app state to clipboard.
+Deliverables
+               * All code changes committed logically (if you’re simulating commits, group changes by section).
+               * Update README:
+               * build steps
+               * how to run
+               * what’s implemented so far
+               * Add .vscode/tasks.json:
+               * Build Debug APK
+               * Install Debug APK (adb)
+               * Logcat filter command
+Proceed to implement now and output the updated file tree and the key files’ contents.
+---
+Prompt 3 (VS Code)
+
+
+You are an expert Android (Kotlin) engineer working on YotoLiteMVP (XML UI, Room + Media3 already wired from Prompt 2). Now implement NFC read + write properly for NTAG215 / NDEF (Type 2), with rock-solid UX and clear errors.
+
+
+Goal (MVP NFC)
+
+
+Tap a card → app reads an NDEF URI record containing a URL like:
+
+
+https://<your-domain>/t/<token> OR yotolite://t/<token>
+
+
+
+
+Extract <token> and load playlist from Room → start playback.
+
+
+“Write to Card” mode: user selects a Card from app → app writes an NDEF URI pointing to that card token.
+
+
+
+
+Hard requirements
+
+
+Must work reliably on Samsung Android 16.
+
+
+Must not depend on Web NFC or Chrome at all.
+
+
+Must handle tag scans when app is in foreground.
+
+
+Must show friendly, specific errors:
+
+
+NFC off
+
+
+Tag not NDEF formatted
+
+
+Tag read-only/locked
+
+
+Tag too small
+
+
+Write failed / lost tag
+
+
+Record not a URI
+
+
+Token missing/invalid
+
+
+
+
+
+
+Implement
+
+
+1. Manifest / permissions / features
+
+
+
+
+
+
+Add:
+
+
+<uses-permission android:name="android.permission.NFC"/>
+
+
+<uses-feature android:name="android.hardware.nfc" android:required="false"/>
+
+
+
+
+Ensure MainActivity has intent filters for:
+
+
+android.nfc.action.NDEF_DISCOVERED (http/https + custom scheme)
+
+
+android.nfc.action.TECH_DISCOVERED with tech list including android.nfc.tech.Ndef, NfcA, MifareUltralight
+
+
+
+
+Add res/xml/nfc_tech_filter.xml tech list.
+
+
+
+
+2. Foreground dispatch
+
+
+
+
+
+
+Implement NFC foreground dispatch in MainActivity:
+
+
+enable in onResume, disable in onPause
+
+
+use PendingIntent + intent filters + tech list so scan routing is consistent.
+
+
+
+
+
+
+3. NfcService / helper Create NfcHandler with:
+
+
+
+
+
+
+parseTokenFromIntent(intent): TokenResult
+
+
+readNdef(tag): ReadResult
+
+
+writeNdefUri(tag, uriString): WriteResult
+
+
+Use Ndef.get(tag) and fall back to NdefFormatable to format blank tags.
+
+
+Write a single NDEF message with one URI record.
+
+
+Confirm write by rereading after write (when possible).
+
+
+
+
+4. App flows
+
+
+
+
+
+
+Add UI toggle in Play screen:
+
+
+Scan mode ON/OFF
+
+
+Write mode ON/OFF (mutually exclusive)
+
+
+
+
+“Write mode” flow:
+
+
+User picks a Card → app shows “Ready to write: tap a blank card”
+
+
+On tag discovered, write URI for that card token.
+
+
+Show success and “written token: …”
+
+
+
+
+“Scan mode” flow:
+
+
+On tag discovered, read URI/token → fetch card playlist from Room
+
+
+If card exists: play tracks
+
+
+If not found: show “Card not recognised” + token
+
+
+
+
+
+
+5. Token format
+
+
+
+
+
+
+Define stable token rules:
+
+
+generated as URL-safe base32/base64 (no padding), 8–16 chars
+
+
+
+
+Parser should accept:
+
+
+https://…/t/<token>
+
+
+yotolite://t/<token>
+
+
+raw token:<token> (for debugging)
+
+
+
+
+
+
+6. Deep links
+
+
+
+
+
+
+Support opening the app when tapping a card even if app is closed:
+
+
+handle NDEF_DISCOVERED with https + custom scheme
+
+
+when opened via link, treat it the same as NFC scan result.
+
+
+
+
+
+
+7. Debug tools
+
+
+
+
+
+
+Add “NFC Debug” screen:
+
+
+Show Android NFC status
+
+
+Last tag tech list
+
+
+Last UID (hex)
+
+
+Last NDEF payload preview
+
+
+Buttons: “Copy debug”, “Clear”
+
+
+
+
+
+
+Deliverables
+
+
+Updated file tree
+
+
+Key files content:
+
+
+MainActivity
+
+
+NfcHandler
+
+
+any xml filter files
+
+
+PlayFragment changes
+
+
+README updates
+
+
+
+
+Include a short “How to test” checklist.
+
+
+
+
+Proceed now.
+
+
+
+
+Prompt 3 (VS Code)
+You are an expert Android (Kotlin) engineer working on YotoLiteMVP (XML UI, Room + Media3 already wired from Prompt 2). Now implement NFC read + write properly for NTAG215 / NDEF (Type 2), with rock-solid UX and clear errors.
+Goal (MVP NFC)
+               * Tap a card → app reads an NDEF URI record containing a URL like:
+               * https://<your-domain>/t/<token> OR yotolite://t/<token>
+               * Extract <token> and load playlist from Room → start playback.
+               * “Write to Card” mode: user selects a Card from app → app writes an NDEF URI pointing to that card token.
+Hard requirements
+               * Must work reliably on Samsung Android 16.
+               * Must not depend on Web NFC or Chrome at all.
+               * Must handle tag scans when app is in foreground.
+               * Must show friendly, specific errors:
+               * NFC off
+               * Tag not NDEF formatted
+               * Tag read-only/locked
+               * Tag too small
+               * Write failed / lost tag
+               * Record not a URI
+               * Token missing/invalid
+Implement
+               1. Manifest / permissions / features
+               * Add:
+               * <uses-permission android:name="android.permission.NFC"/>
+               * <uses-feature android:name="android.hardware.nfc" android:required="false"/>
+               * Ensure MainActivity has intent filters for:
+               * android.nfc.action.NDEF_DISCOVERED (http/https + custom scheme)
+               * android.nfc.action.TECH_DISCOVERED with tech list including android.nfc.tech.Ndef, NfcA, MifareUltralight
+               * Add res/xml/nfc_tech_filter.xml tech list.
+               2. Foreground dispatch
+               * Implement NFC foreground dispatch in MainActivity:
+               * enable in onResume, disable in onPause
+               * use PendingIntent + intent filters + tech list so scan routing is consistent.
+               3. NfcService / helper Create NfcHandler with:
+               * parseTokenFromIntent(intent): TokenResult
+               * readNdef(tag): ReadResult
+               * writeNdefUri(tag, uriString): WriteResult
+               * Use Ndef.get(tag) and fall back to NdefFormatable to format blank tags.
+               * Write a single NDEF message with one URI record.
+               * Confirm write by rereading after write (when possible).
+               4. App flows
+               * Add UI toggle in Play screen:
+               * Scan mode ON/OFF
+               * Write mode ON/OFF (mutually exclusive)
+               * “Write mode” flow:
+               * User picks a Card → app shows “Ready to write: tap a blank card”
+               * On tag discovered, write URI for that card token.
+               * Show success and “written token: …”
+               * “Scan mode” flow:
+               * On tag discovered, read URI/token → fetch card playlist from Room
+               * If card exists: play tracks
+               * If not found: show “Card not recognised” + token
+               5. Token format
+               * Define stable token rules:
+               * generated as URL-safe base32/base64 (no padding), 8–16 chars
+               * Parser should accept:
+               * https://…/t/<token>
+               * yotolite://t/<token>
+               * raw token:<token> (for debugging)
+               6. Deep links
+               * Support opening the app when tapping a card even if app is closed:
+               * handle NDEF_DISCOVERED with https + custom scheme
+               * when opened via link, treat it the same as NFC scan result.
+               7. Debug tools
+               * Add “NFC Debug” screen:
+               * Show Android NFC status
+               * Last tag tech list
+               * Last UID (hex)
+               * Last NDEF payload preview
+               * Buttons: “Copy debug”, “Clear”
+Deliverables
+               * Updated file tree
+               * Key files content:
+               * MainActivity
+               * NfcHandler
+               * any xml filter files
+               * PlayFragment changes
+               * README updates
+               * Include a short “How to test” checklist.
+Proceed now.
+Prompt 5 (VS Code)
+You are an expert Android product engineer polishing YotoLiteMVP into an installable, sharable “family-ready” app. After Prompt 4, NFC + audio import + background playback works. Now ship-quality MVP: onboarding, permissions, safety rails, export/import, and release builds.
+Goal (Ship-ready MVP)
+               * First-run experience explains how it works.
+               * NFC + storage permission flows are foolproof.
+               * “Write card” is dead simple and hard to mess up.
+               * Ability to export/import the app library + card mappings so Josh can migrate phones.
+               * Produce a signed release APK from VS Code.
+Implement
+1) Onboarding + checks (first run + settings)
+               * Add OnboardingActivity shown only on first launch:
+               * Step 1: What the app does (“tap card → plays on this phone”)
+               * Step 2: Turn on NFC (deep link to NFC settings if possible)
+               * Step 3: Import audio
+               * Step 4: Create a card + write NFC
+               * After onboarding, always run a lightweight “health check” banner in main UI:
+               * NFC available? NFC enabled?
+               * Do we have any imported tracks?
+               * Do we have at least one card created?
+2) Permissions & OS quirks
+               * Ensure Storage Access Framework permissions are handled correctly:
+               * Persistable URI permission on import
+               * Graceful handling if permission revoked
+               * Android 13+ notification permission:
+               * Request only when needed (before starting background playback)
+               * Explain why (media controls)
+               * Add ForegroundService declaration correctly for media playback on modern Android.
+3) “Write to card” hardening
+               * Before writing:
+               * Confirm user intent (dialog)
+               * Show the exact card name being written
+               * During write:
+               * Fullscreen “Hold card steady” sheet
+               * Timeout after 15s with retry
+               * After write:
+               * Immediate verification read and show:
+               * token
+               * uri written
+               * “Tap now to test” button
+4) Export / Import (migration)
+Implement “Backup & Restore”:
+               * Export creates a single .zip that includes:
+               * cards.json (cards + order + token)
+               * tracks.json (metadata + uri strings)
+               * (Optional) cover images if you have them
+               * Use ACTION_CREATE_DOCUMENT so user chooses save location.
+               * Import:
+               * User picks a zip via ACTION_OPEN_DOCUMENT
+               * Validate schema
+               * Merge strategy:
+               * If token already exists → update name/order
+               * If track URI exists → skip duplicates
+               * Show summary: added/updated/skipped counts
+               * Important: don’t try to copy audio files themselves (keep it simple); clearly warn in UI that audio must still exist on the device and URIs must remain valid.
+5) UI polish (simple but clean)
+               * Add top bar menu:
+               * Settings
+               * Backup & Restore
+               * Debug
+               * Add empty states with clear CTAs (“Import audio”, “Create card”, “Write card”)
+6) Release build from VS Code
+               * Add scripts and docs to generate:
+               * debug APK
+               * release APK (signed)
+               * Provide:
+               * keystore.properties template (ignored by git)
+               * gradle signing config reading env vars or local properties
+               * .gitignore updates
+               * Add a VS Code task:
+               * Build Release APK
+               * Output path printed clearly
+Deliverables
+               * Updated file tree
+               * Key file content:
+               * OnboardingActivity
+               * Settings screen additions
+               * Backup/Restore implementation files
+               * signing config changes in Gradle
+               * tasks.json additions
+               * README release steps
+               * “Acceptance checklist” for Josh to confirm MVP is done.
+Proceed now.
+Prompt 6 (VS Code)
+You are an expert Android release engineer and QA engineer. YotoLiteMVP is feature-complete (onboarding, NFC read/write, audio import, Room mapping, Media3 background playback, backup/restore, release signing). Now we must eliminate remaining bugs, add automated tests, and harden for real family use with zero confusing failures.
+Goal
+               * App behaves predictably across:
+               * NFC scan spam / double triggers
+               * app in background / lockscreen
+               * tag removed quickly
+               * imported audio missing / permission revoked
+               * writing to locked/blank tags
+               * orientation changes / process death
+               * Improve logging + self-diagnostics so Josh can troubleshoot quickly.
+               * Add a basic automated test suite (unit + instrumentation smoke).
+Implement
+1) NFC hardening
+               * Add scan debouncing:
+               * If same tag UID/token scanned again within 1500ms, ignore.
+               * Ensure scan/write are mutually exclusive:
+               * If in write mode, scans never trigger playback.
+               * Handle “lost tag” gracefully:
+               * If write fails due to tag removed, show “Hold card steady and try again”.
+               * Add tech fallback:
+               * Prefer Ndef reads; if absent, attempt NfcA UID read and show “This card has no link yet”.
+2) Playback hardening
+               * Ensure PlaybackService survives app backgrounding:
+               * MediaSession is stable, notification shows reliably.
+               * Request POST_NOTIFICATIONS (Android 13+) only when starting service.
+               * On playback error:
+               * If file not accessible: skip to next track + show a snackbar with “Remove broken track”.
+               * Record last player error into diagnostics.
+3) Storage / SAF hardening
+               * On app start, run a non-blocking integrity check:
+               * sample-check that persisted URIs still resolve (don’t scan everything every time)
+               * Provide “Repair library” tool:
+               * Finds tracks that fail to open
+               * Bulk remove option
+4) Database + concurrency
+               * Ensure Room operations are on IO dispatcher.
+               * Add transactions for setCardTracks.
+               * Add unique constraints:
+               * token unique on Card
+               * localUri unique on Track (or handle duplicates clearly)
+5) UI / state stability
+               * Make ViewModels survive rotation without losing:
+               * current mode (scan/write)
+               * selected card for writing
+               * now playing state
+               * Ensure fragments don’t crash on null contexts or late collectors.
+6) Diagnostics upgrades
+               * Add “Export debug report” button that creates a .txt file via SAF containing:
+               * app version, device model, android version
+               * NFC enabled state
+               * last 20 log events from in-app ring buffer (you implement)
+               * last scanned token/uid
+               * last playback error
+               * database counts: tracks/cards/mappings
+               * Add in-app ring buffer logger:
+               * AppLog.i(tag, message) etc
+               * store last 200 lines
+               * display on Debug screen
+7) Tests (minimum viable)
+Add:
+               * Unit tests:
+               * token parser (valid/invalid cases)
+               * NDEF URI extraction tests
+               * debounce behaviour
+               * Instrumentation smoke test:
+               * launch app
+               * navigate tabs
+               * create dummy card + dummy track in DB
+               * verify UI updates (counts / list items)
+8) Release verification checklist (scripted)
+Add a script or README section:
+               * clean build
+               * install release apk
+               * run through acceptance “tap tag plays”
+               * backup/restore
+               * export debug report
+Deliverables
+               * Updated file tree
+               * Key file content:
+               * debounce implementation
+               * AppLog ring buffer
+               * Debug report export
+               * test files
+               * README “Release QA checklist”
+               * Ensure ./gradlew test and ./gradlew connectedAndroidTest are available (note emulator requirements).
+Proceed now.
+Prompt 7 (VS Code)
+You are an expert full-stack + Android engineer. YotoLiteMVP currently works offline on one Android phone (NFC writes token URL, local library, Room mapping, Media3 playback). Now implement Cloud Mode so it becomes truly “Yoto-like”:
+               * Tap the same card on any device → it plays the right audio
+               * Upload audio once → it’s available everywhere
+               * NFC cards store only a short URL/token (not audio)
+Important: Keep the existing offline mode working. Cloud Mode is an optional toggle.
+________________
+
+
+Goal (Cloud Mode MVP)
+               1. In the app, user can upload audio to the cloud, create playlists, and link them to card tokens.
+               2. Tap card → app resolves token → fetches playlist from cloud → streams audio (Media3).
+               3. Provide a simple Web Admin (for Josh on PC) to manage:
+               * Tracks upload
+               * Playlists
+               * Cards (token → playlist)
+               4. Provide a small public resolver page so iPhone can open the URL (Safari) and at least show the playlist + play button (autoplay may require a tap on iOS).
+________________
+
+
+Stack choice (free tier)
+Use Firebase (free tier):
+               * Firestore (metadata)
+               * Storage (audio files)
+               * Firebase Auth (Anonymous)
+               * Optional: Hosting for web admin + resolver page
+________________
+
+
+Implementation requirements
+A) Backend schema (Firestore)
+Create collections:
+tracks
+               * id
+               * ownerUid
+               * title
+               * durationMs
+               * storagePath
+               * downloadUrl
+               * createdAt
+playlists
+               * id
+               * ownerUid
+               * name
+               * trackIds (ordered array)
+               * createdAt
+cards
+               * token (doc id)
+               * ownerUid
+               * name
+               * playlistId
+               * updatedAt
+Token format: URL safe, 10–16 chars.
+B) Firebase security rules (must exist)
+               * Only authenticated users (anonymous OK) can read/write their documents.
+               * Public read access ONLY for cards/<token> + referenced playlist metadata needed to play (or implement a “publicPlaylists” opt-in flag).
+               * Storage rules: only owner can upload; streamed downloads should be allowed only via signed downloadUrl.
+C) Android app changes
+Add a Settings toggle: Mode: Offline / Cloud
+Cloud Mode features
+               1. On first launch in Cloud Mode:
+               * sign in anonymously with Firebase Auth
+               2. Library import:
+               * When importing local audio, also provide “Upload” action:
+               * upload file to Firebase Storage
+               * write track doc in Firestore
+               3. Playlist / Card creation:
+               * Create playlist doc (ordered trackIds)
+               * Create card doc: token → playlistId
+               4. NFC write:
+               * Write NDEF URI with:
+               * BASE_PUBLIC_URL/t/<token>
+               * Default BASE_PUBLIC_URL from config (see below).
+               5. Playback:
+               * When scanning NFC:
+               * parse token from URL
+               * fetch card doc → playlist doc → track docs → downloadUrls
+               * stream playlist with Media3
+               * Optional caching:
+               * add “Download for offline” for a playlist (store in app cache dir)
+Keep Offline Mode
+Offline Mode should behave exactly as before (Room mappings, local URIs).
+D) Web Admin (React, minimal)
+Create a new folder /web-admin (Vite + React + TS) that supports:
+               * Auth (Firebase anonymous OR email/password if you prefer; anonymous is fine for MVP)
+               * Upload track (select file → upload to Storage → create track doc)
+               * Create playlist (name + reorder tracks)
+               * Create card (name, token auto-gen, link playlist)
+               * Copy button: copies PUBLIC_URL/t/<token>
+Deployable to Firebase Hosting (include instructions).
+E) Public resolver page (for iPhone web)
+Create /public-resolver (or as part of web-admin with a public route) that handles:
+Route: /t/:token
+               * fetch card + playlist + track list (read-only)
+               * show:
+               * playlist name
+               * track list
+               * a “Play” button (iOS needs user gesture)
+               * stream audio in browser using HTML5 audio (basic is OK)
+This gives iPhone: Tap card → page opens → tap Play.
+F) Configuration
+Do NOT hardcode Firebase keys.
+               * Use .env for web admin
+               * For Android, use google-services.json and a buildConfig field for PUBLIC_URL. Add a config.example file + README instructions.
+________________
+
+
+Deliverables
+               1. Android:
+               * Firebase dependencies added (Auth, Firestore, Storage)
+               * CloudRepo implemented
+               * Offline/Cloud mode toggle implemented
+               * NFC write uses PUBLIC_URL
+               * Playback can stream cloud playlist
+               * README section: “Cloud Mode setup”
+               2. Web:
+               * /web-admin app with upload / playlists / cards
+               * Firebase hosting config
+               * /t/:token public resolver route/page
+               3. Docs:
+               * Step-by-step Firebase console setup:
+               * create project
+               * enable Auth (Anonymous)
+               * enable Firestore + Storage
+               * set rules (provide rule files)
+               * deploy hosting
+               * Local dev steps:
+               * web-admin npm i && npm run dev
+               * optional Firebase emulators
+Proceed now: generate all code, rules files, env templates, and README updates.
+________________
+
+
+If you want Prompt 8 after this, it should be iOS-native (Core NFC) so Kristy can truly tap-and-autoplay inside an iPhone app (Safari autoplay rules will always be a limiter).
+Prompt 8 (VS Code)
+You are an expert iOS engineer. We already have an Android app + Cloud Mode (Firebase) and a public resolver route /t/<token>. Now build the iOS companion app so Kristy can tap NFC cards and play the same cloud playlists.
+Reality constraints (iOS NFC)
+               * iPhone cannot read tag UID reliably; use NDEF URL only.
+               * NFC scanning + writing requires the app to be in the foreground and the user to start a scan session (unless the tag is an NDEF URL that triggers a universal link; iOS may open the app, but autoplay can still require a tap).
+               * We will implement best-effort auto-play on open, but always show a Play button fallback.
+________________
+
+
+Goal (iOS MVP)
+Create an iOS app project under /iOSYotoLiteMVP that:
+               1. Reads NFC NDEF URL from cards
+               * Button: “Scan Card”
+               * When tag is tapped, read the NDEF message
+               * Extract token from:
+               * https://<PUBLIC_URL>/t/<token> or
+               * yotolite://t/<token>
+               * Fetch cloud card → playlist → tracks from Firebase (same schema as Prompt 7)
+               * Start playback (or show Play button if iOS blocks autoplay)
+               2. Writes NFC cards
+               * “Write Card” screen:
+               * select existing Card (token) from cloud
+               * start write session
+               * write NDEF URI record: https://<PUBLIC_URL>/t/<token>
+               * verify by rereading immediately and show success/error reason
+               3. Plays audio with background support
+               * Stream audio using AVPlayer / AVQueuePlayer
+               * Enable background audio capability
+               * Show lockscreen controls (MPNowPlayingInfoCenter + remote command center)
+               * Keep playing if app backgrounded
+               4. Cloud Mode only (for iOS)
+               * iOS app uses Firebase only (no offline Room mode required for MVP iOS)
+               * Auth: Firebase Anonymous sign-in
+               * Screens:
+               * Home (Now Playing + Scan button)
+               * Library (list tracks from cloud; optional upload if feasible)
+               * Cards (list cards; create card; link playlist; copy token URL)
+               * Write to NFC (select card → write)
+               5. Deep links / Universal Links
+               * Support opening the app when user opens https://<PUBLIC_URL>/t/<token>
+               * Implement:
+               * custom URL scheme: yotolite://t/<token>
+               * universal links via Associated Domains: applinks:<PUBLIC_DOMAIN>
+               * Add handling so when opened via deep link the app:
+               * resolves token
+               * loads playlist
+               * attempts playback (fallback Play button)
+Also generate the required website file:
+               * /public/.well-known/apple-app-site-association (AASA) template for hosting (Firebase Hosting)
+               * Include instructions in README to update Team ID + Bundle ID.
+________________
+
+
+Firebase integration
+Use Swift Package Manager (SPM), not CocoaPods.
+Implement a small CloudRepo layer:
+               * signInAnonymously()
+               * fetchCard(token)
+               * fetchPlaylist(id)
+               * fetchTracks(trackIds in order)
+               * Return structured models
+Schema is the same as Prompt 7:
+               * cards/<token> → playlistId, name
+               * playlists/<id> → trackIds[], name
+               * tracks/<id> → title, durationMs, downloadUrl
+________________
+
+
+NFC implementation details (CoreNFC)
+               * Reading:
+               * NFCNDEFReaderSession on iPhone
+               * parse NFCNDEFPayload:
+               * if .wellKnownTypeURIPayload() exists -> get URL
+               * Writing:
+               * NFCNDEFReaderSession in write mode
+               * connect to NFCNDEFTag
+               * query NDEF status, capacity, write message with one URI record
+               * handle errors: read-only, not supported, too small, user cancelled, timeouts
+________________
+
+
+Deliverables
+               1. Full iOS project under /iOSYotoLiteMVP
+               * Prefer SwiftUI for UI (simple, modern), but UIKit acceptable if easier.
+               * Include entitlements:
+               * NFC (Near Field Communication Tag Reading)
+               * Background Modes: Audio
+               * Associated Domains
+               2. README_IOS.md with step-by-step build instructions:
+               * Requires macOS + Xcode (state this clearly)
+               * Add Firebase GoogleService-Info.plist placement
+               * Enable capabilities in Xcode (NFC, Background audio, Associated Domains)
+               * How to run on device (NFC requires real device)
+               3. AASA template file + hosting notes
+               * add AASA to Firebase Hosting public directory
+               * ensure correct content-type and no redirects
+               * show what needs replacing: <TEAM_ID>.<BUNDLE_ID>
+               4. Basic diagnostics screen:
+               * shows Firebase auth UID
+               * last scanned URL/token
+               * last fetch error
+               * last playback error
+               * “Copy debug report” button
+Proceed now: generate the entire iOS source tree, key Swift files, entitlements templates, and both READMEs.
+________________
+
+
+If you hit iOS limitations where autoplay is blocked on deep-link open, implement:
+               * attempt autoplay
+               * if it fails, show a big “Play” button and start playback on tap.
+Prompt 9 (VS Code)
+You are an expert product engineer + QA + release manager. We now have:
+               * Android app (YotoLiteMVP) with Offline + Cloud Mode (Firebase), NFC read/write, Media3 background playback, backup/restore, diagnostics, tests.
+               * iOS app (iOSYotoLiteMVP) with Firebase Cloud Mode, NFC read/write (CoreNFC), AVPlayer background playback, universal links + custom scheme, diagnostics.
+               * Public web resolver route /t/<token> (for iPhone fallback and sharing).
+Now do the final MVP hardening + release packaging so Josh can actually ship this to his family (and optionally beta testers) with minimal drama.
+Goal
+               1. Ensure end-to-end: card written once → scans on Android and iPhone → plays correct playlist.
+               2. Make token + URL and cloud schema consistent across Android/iOS/web.
+               3. Lock down Firebase rules and prevent accidental public data leaks.
+               4. Provide a release checklist and automated scripts for building:
+               * Android signed release APK
+               * Android AAB (Play Store optional)
+               * iOS archive + TestFlight notes (Xcode steps)
+               5. Improve UX so non-technical users won’t get stuck.
+________________
+
+
+A) Standardise URLs and token parsing (MUST)
+Define a single canonical card URL format used everywhere:
+               * https://<PUBLIC_DOMAIN>/t/<token>
+Token constraints:
+               * 12–16 chars
+               * URL-safe base32 or base62
+               * case-insensitive (normalize to upper or lower everywhere)
+Implement a shared parser in:
+               * Android: TokenParser.kt
+               * iOS: TokenParser.swift
+               * Web: tokenParser.ts
+Rules:
+               * Accept:
+               * https://<domain>/t/<token>
+               * https://<domain>/t/<token>?... (ignore query)
+               * yotolite://t/<token>
+               * Reject anything else with clear error.
+Add tests for the parser on all platforms.
+________________
+
+
+B) Cloud schema + migrations
+Confirm schema compatibility and add a version field:
+Firestore docs add:
+               * schemaVersion: 1
+If future upgrades happen, allow migration later. Add checks so app won’t crash if optional fields missing.
+________________
+
+
+C) Firebase Security Rules (ship-safe)
+You MUST implement and include rules files with explanation.
+Requirements:
+               * Private by default: tracks/playlists/cards are readable only by ownerUid.
+               * Provide explicit “Share mode” for a card:
+               * cards/<token> includes isPublic: true/false
+               * if isPublic=true, allow read of:
+               * card doc (no ownerUid exposed)
+               * referenced playlist metadata (name + ordered trackIds)
+               * track metadata (title + downloadUrl) ONLY for tracks referenced by that public playlist
+               * Prevent list-all reads of collections for anonymous users.
+               * Prevent users writing to someone else’s token.
+               * Storage rules:
+               * owner can upload/delete in their folder
+               * public streaming only via download URLs (don’t expose raw storage objects broadly)
+Also provide a minimal admin-only option (optional): if request.auth.token.admin == true allow management.
+________________
+
+
+D) Web resolver polish (iPhone friendliness)
+Improve /t/<token>:
+               * Mobile-first UI
+               * Big Play button
+               * Track list
+               * “Open in App” deep link button:
+               * iOS uses universal link; if not installed fallback to App Store placeholder
+               * Android uses intent link
+               * Show helpful messages if:
+               * token not found
+               * card not public
+               * network offline
+________________
+
+
+E) Release packaging automation
+Android
+               * Ensure:
+               * versioning in versionCode/versionName
+               * changelog template
+               * Add scripts/:
+               * build-android-release.ps1 (Windows) and .sh (optional)
+               * outputs:
+               * app-release.apk
+               * app-release.aab
+               * prints SHA256 of outputs
+               * Ensure keystore config via env vars and/or keystore.properties (ignored).
+iOS
+               * Add README_IOS_RELEASE.md:
+               * how to set bundle id/team id
+               * how to archive
+               * how to upload to TestFlight
+               * NFC entitlement requirements
+               * universal links verification checklist
+________________
+
+
+F) Final Acceptance Tests (human checklist)
+Create /docs/ACCEPTANCE_CHECKLIST.md including:
+               * Setup cloud
+               * Create playlist
+               * Create card
+               * Write card
+               * Tap on Android (foreground/background)
+               * Tap on iPhone using Scan + by opening URL
+               * Offline behavior
+               * Remove audio permission case
+               * Backup/restore (Android)
+               * Debug report export
+________________
+
+
+Deliverables
+               * Updated file tree showing added scripts/docs/rules/tests
+               * Key file content (rules + parser + scripts + resolver page)
+               * Ensure Android unit tests run: ./gradlew test
+               * Ensure web tests run (if you add them): npm test or vitest
+               * iOS tests optional, but parser unit tests preferred.
+Proceed now and implement everything.
+________________
+
+
+After Prompt 9, the MVP should be in a state where Josh can:
+               * write cards,
+               * upload playlists,
+               * hand cards to Kristy,
+               * and it “just works” with minimal tech fuss.
+Prompt 10 (VS Code)
+You are an expert app-store release engineer + growth/product engineer. We have completed Prompt 9 hardening and now the MVP is stable. This prompt focuses on distribution, privacy, branding, and family-proof onboarding so Josh can ship:
+               * Android: shareable APK (sideload) + optional Play Store internal testing (AAB)
+               * iOS: TestFlight beta + optional App Store later
+               * Web: hosted resolver page working with universal links
+Goal
+Create a “release-ready” package and documentation so a non-technical family member can install and use it.
+________________
+
+
+A) Branding + UX polish (minimum)
+               1. Update app names + icons:
+               * Android: app name “YotoLite” (or “TapTunes” if you prefer)
+               * iOS: same display name
+               * Generate/replace launcher icons (placeholder is fine but clean)
+               2. Add a simple colour theme + consistent typography.
+               3. Replace debug-ish language with friendly copy:
+               * “Scan Card” → “Tap a Card”
+               * “Write Card” → “Make a Card”
+               * “Token” → hide from normal UI; show only in Debug.
+               4. Add “Kid mode” toggle:
+               * hides all settings/editing
+               * only shows Now Playing + Tap Card
+               * requires long-press or PIN to exit (simple PIN: 4 digits)
+________________
+
+
+B) Privacy + Policies (must)
+Add a /docs/PRIVACY_POLICY.md and /docs/TERMS.md:
+               * Explain what data is collected (Firebase: anonymous UID, tracks metadata, audio file storage)
+               * Explain what is NOT collected
+               * Explain sharing/public cards
+               * Provide contact/owner (Josh) Also add in-app “Privacy” screen linking to this text (local copy is fine).
+________________
+
+
+C) Store listing assets + copy
+Create /docs/STORE_LISTING.md with:
+               * App description (short + full)
+               * Key features bullets
+               * “How it works” steps
+               * Known limitations (iOS autoplay requires tap sometimes)
+               * Support email placeholder Also create /docs/SCREENSHOTS_GUIDE.md:
+               * which screens to screenshot
+               * suggested captions
+________________
+
+
+D) Distribution flows
+Android
+               1. Sideload pack
+               * Create /release/android/ folder outputs:
+               * YotoLite-vX.Y.Z-release.apk
+               * SHA256SUMS.txt
+               * INSTALL_ANDROID.md instructions for Kristy/family
+               2. Play Store internal testing (optional)
+               * Ensure AAB output is built
+               * Add /release/android/PLAY_STORE_INTERNAL_TESTING.md steps:
+               * create app in Play Console
+               * upload AAB
+               * create internal test track
+               * invite testers
+               * notes about NFC hardware feature declaration
+iOS (TestFlight)
+               * Add /release/ios/TESTFLIGHT.md:
+               * App ID setup
+               * capabilities (NFC + Background Audio + Associated Domains)
+               * archive + upload
+               * add testers
+               * common review rejections & how to avoid them
+________________
+
+
+E) Universal Links verification helper
+Add a tiny CLI script under /scripts/verify-universal-links:
+               * Given a domain and expected bundle id, it:
+               * fetches .well-known/apple-app-site-association
+               * checks it’s valid JSON
+               * checks it contains the correct app id and /t/* path
+               * Provide Windows PowerShell version too.
+________________
+
+
+F) Final “Family Setup Guide”
+Create /docs/FAMILY_SETUP_GUIDE.md — plain English, 1–2 pages max:
+               * Install app
+               * Turn on NFC
+               * Import music
+               * Make a Card
+               * Tap to play
+               * Troubleshooting (3–5 common issues)
+________________
+
+
+Deliverables
+               * Updated file tree
+               * The docs files above with high-quality copy
+               * Android build outputs are referenced in scripts/tasks (don’t include binaries here; include build instructions + naming)
+               * Ensure the app version is bumped consistently across Android/iOS/web.
+Proceed now and implement all documentation, naming, icon placeholders, kid-mode toggle, and distribution scripts/templates.
+Prompt 11 (VS Code)
+You are an expert engineer and “bug assassin”. We’ve reached release-ready state (Prompt 10). Now implement the last-mile reliability fixes that make this feel like a real Yoto device in daily use.
+Goal
+               * Reduce “why didn’t it play?” moments to near-zero.
+               * Make NFC UX instant and forgiving.
+               * Make audio playback resilient.
+               * Provide ultra-clear feedback when something can’t work.
+________________
+
+
+A) NFC: Instant tap-to-play (Android)
+               1. One-tap home mode
+               * Add a setting: “Always scanning on Home screen”
+               * If enabled:
+               * When Play tab is visible, start reader mode automatically (no button)
+               * Stop scanning when leaving Play tab
+               * Add a subtle animated “listening” indicator.
+               * Still keep “Write mode” as a separate explicit action.
+               2. Improve scan robustness
+               * Ignore repeated reads of the same tag for 2 seconds (debounce).
+               * Detect tag removal (best effort):
+               * If keepPlaying = false, stop within ~1 second of tag loss.
+               * If keepPlaying = true, do nothing.
+               * If NDEF read fails, retry once automatically before showing error.
+               3. Write reliability
+               * If tag is blank but formatable, format + write.
+               * If tag is not formatable: show “This card can’t be written by this phone.”
+               * Add a “Write test” flow:
+               * After writing, immediately start scan session and prompt “Tap again to verify”
+               * Verify token matches.
+________________
+
+
+B) NFC: Best possible iPhone experience
+               1. Universal Link open
+               * If user opens https://<domain>/t/<token> in Safari:
+               * Show “Open in app” prompt
+               * auto-redirect attempt with universal link
+               * In app: when opened with token, attempt autoplay:
+               * If blocked, show big Play button and remember the user’s tap as authorization.
+               2. CoreNFC session mastery
+               * Add tighter session messaging:
+               * “Hold near top of iPhone”
+               * timeouts and retries
+               * On write: verify NDEF status and capacity before writing, show capacity numbers.
+________________
+
+
+C) Playback resilience (Android + iOS)
+               1. Preflight checks
+               * Before starting a playlist:
+               * validate at least 1 playable track URL/URI
+               * if some tracks broken, skip them and warn once.
+               2. Crossfade gapless (optional if easy)
+               * If feasible, enable gapless where supported.
+               3. Resume behaviour
+               * If app is killed and relaunched:
+               * restore last playlist and position
+               * show “Resume” button
+________________
+
+
+D) “Card won’t play” Troubleshooter
+Add a single in-app tool:
+               * Button: “Why didn’t this card play?”
+               * It runs checks and shows results:
+               * NFC enabled?
+               * Tag read? (when last seen)
+               * Token parsed?
+               * Card exists in cloud/offline?
+               * Playlist has tracks?
+               * Track URIs accessible?
+               * Playback errors?
+               * Include a “Fix it” action where possible:
+               * turn on NFC shortcut
+               * open playlist editor
+               * remove broken tracks
+               * re-write card
+Also add “Share troubleshooting report” (text).
+________________
+
+
+Deliverables
+               * Updated file tree
+               * Key file changes:
+               * Android: Play tab auto-scan behaviour + indicators + troubleshooter
+               * iOS: improved NFC messaging + autoplay fallback
+               * Both: resume + preflight
+               * Docs: add Troubleshooter usage section
+               * Make sure builds still pass.
+Proceed now and implement.
+Prompt 12 (VS Code)
+You are an expert engineer who ships. We are at the final stage. Your job now is to create a single-command “Build & Deliver” workflow and a demo dataset so Josh can hand this to Kristy and prove “tap card → music plays” in under 5 minutes.
+Goal
+               * One command builds everything needed for a family demo (Android APK + web resolver deployment notes + iOS notes).
+               * App launches with a starter demo library, a demo playlist, and a demo card token ready to write.
+               * Provide a clear “Demo Mode” path that works offline and cloud.
+________________
+
+
+A) Demo dataset (Android + Web + optional iOS)
+               1. Add /demo/ folder containing:
+               * demo_tracks.json (3 tracks metadata)
+               * demo_playlist.json
+               * demo_card.json (token + name + playlist relationship)
+               2. Add 1–2 tiny audio assets for demo:
+               * If repo policy allows: include short public-domain MP3/OGG (5–15 seconds)
+               * If not: generate a tiny tone in code at first run and save it as an audio file the player can play (acceptable workaround)
+               3. On first run (or via “Load Demo Data” button in Debug):
+               * Insert demo tracks into Library
+               * Insert demo playlist and mapping
+               * Create “Demo Card” in Cards screen
+________________
+
+
+B) “5-minute demo” guided flow (Android)
+Implement an in-app “Demo Wizard”:
+               * Step 1: Confirm NFC enabled (deep link to settings)
+               * Step 2: “Load Demo Data” (one tap)
+               * Step 3: “Write Demo Card” (starts write mode)
+               * Step 4: “Tap to Play” (auto-scan on Play screen)
+               * Step 5: Shows success screen with “Now Playing”
+This should handle common failures and tell user exactly what to do.
+________________
+
+
+C) Build & Deliver scripts
+Create /scripts/build_and_deliver/ with:
+Windows PowerShell
+               * build_android_release.ps1
+               * build_android_debug.ps1
+               * install_android.ps1 (adb install)
+               * sha256.ps1 (hash outputs)
+Optional cross-platform
+               * .sh equivalents if easy
+The main script deliver.ps1 should:
+               1. Run tests
+               2. Build release APK
+               3. Copy outputs to /release/android/
+               4. Generate SHA256SUMS.txt
+               5. Print next steps:
+               * where APK is
+               * how to install on Kristy’s phone
+               * how to write demo card
+________________
+
+
+D) VS Code Tasks
+Update .vscode/tasks.json so Josh can:
+               * “Run Tests”
+               * “Build Release APK”
+               * “Deliver Demo Package”
+               * “Install on Device”
+               * “Open Logcat (Filtered)”
+________________
+
+
+E) iOS / Web notes (docs only)
+Create:
+               * /release/ios/DEMO_NOTES.md with steps to run iOS demo (Xcode required)
+               * /release/web/DEPLOY_NOTES.md to deploy resolver + AASA checks (Firebase Hosting)
+No need to automate iOS build from Windows, but give Josh a clear checklist.
+________________
+
+
+F) Acceptance criteria (must pass)
+               * Fresh install → Demo Wizard loads demo → writes card → tapping plays demo audio.
+               * If NFC is off → wizard detects and routes to settings.
+               * If card is read-only → wizard clearly says “Use a blank writable NTAG215/NTAG213”.
+               * If playback notification permission required → request once with clear prompt.
+________________
+
+
+Deliverables
+               * Updated file tree
+               * Key scripts content
+               * Demo wizard implementation file(s)
+               * README section: “5-minute Demo”
+               * Ensure Android build passes.
+Proceed now and implement everything.
+Prompt 13 (VS Code)
+You are an expert Firebase + mobile engineer. Implement Family Sharing so Josh and Kristy can use the same NFC cards/playlists across devices with proper access control. Replace anonymous-only with real sign-in while keeping anonymous as a fallback.
+Goal
+               * Josh can create a Family and invite Kristy.
+               * Both can see and play the same Cards / Playlists / Tracks.
+               * Cards can be set private to family or public (resolver page).
+               * Ownership and roles exist: Owner / Admin / Member.
+________________
+
+
+A) Firestore schema (v2, backward compatible)
+users/<uid>
+               * displayName
+               * email
+               * createdAt
+families/<familyId>
+               * name
+               * ownerUid
+               * createdAt
+families/<familyId>/members/<uid>
+               * role: "owner" | "admin" | "member"
+               * joinedAt
+               * displayName
+               * email
+invites/<inviteId>
+               * familyId
+               * createdByUid
+               * email (lowercased)
+               * role ("admin" or "member")
+               * status ("pending" | "accepted" | "revoked" | "expired")
+               * createdAt
+               * expiresAt
+Update existing content collections to support family scope:
+Move to family-scoped collections (preferred), but keep a migration path:
+New canonical:
+families/<familyId>/tracks/<trackId> families/<familyId>/playlists/<playlistId> families/<familyId>/cards/<token>
+Each doc should include:
+               * schemaVersion: 2
+               * ownerUid (creator)
+               * visibility: "family" | "public"
+               * updatedAt
+Migration support
+               * If older docs exist at root collections (tracks, playlists, cards), implement a migration job in-app:
+               * When user joins/creates family, offer “Migrate my library to family”
+               * Copy docs into family collection
+               * Update references
+               * Do not delete old docs automatically (show cleanup later)
+________________
+
+
+B) Auth changes
+Implement Firebase Auth sign-in options on both platforms:
+Android
+               * Add sign-in screen:
+               * Email link sign-in (preferred) OR Email/Password (simpler for MVP)
+               * Google Sign-In optional if quick; otherwise skip
+               * Keep “Continue as Guest” (anonymous)
+               * Store selected profile in app settings.
+iOS
+               * Implement the same sign-in (email/password is fine).
+               * If email-link is too much, do email/password for both for consistency.
+________________
+
+
+C) Family UX
+Required screens (Android + iOS)
+               1. Account / Family
+               * shows signed-in user
+               * shows current family (or “none”)
+               * buttons:
+               * Create Family
+               * Join Family (enter invite code)
+               * Leave Family (with warnings)
+               * Sign out
+               2. Invite Member
+               * Create an invite for an email:
+               * generates inviteId
+               * also generates a short Invite Code (e.g., 6–8 chars) that maps to inviteId
+               * Share sheet: copy code/message
+               3. Join Family
+               * enter Invite Code
+               * app looks up invite, verifies email match OR allows accept if code + signed-in email matches invite email
+               * on accept:
+               * create member doc under family
+               * mark invite accepted
+Invite Code design
+               * Use an inviteCodes/<code> mapping doc:
+               * inviteId
+               * expiresAt This lets Kristy type a short code instead of a giant ID.
+________________
+
+
+D) Security rules (must be correct)
+Firestore rules must enforce:
+               * Only family members can read/write family tracks/playlists/cards where visibility is “family”.
+               * Public cards: allow read of:
+               * families/<familyId>/cards/<token> IF visibility == "public"
+               * referenced playlist + tracks needed to play (read-only) IF those are public too
+               * Prevent listing all families/invites publicly.
+               * Invites:
+               * only creator or family admin can create/revoke
+               * only the invited email user can accept
+               * Members:
+               * only owner/admin can add/remove members (except self-leave)
+               * only owner can change roles or delete family
+Storage rules
+               * Store files under:
+               * families/<familyId>/audio/<trackId>.<ext>
+               * Only family members may read audio objects for visibility family.
+               * If a track is public, allow read (stream) without auth OR restrict to signed download URLs (choose and implement consistently; document it).
+Provide the rule files in repo:
+               * /firebase/firestore.rules
+               * /firebase/storage.rules
+________________
+
+
+E) Cloud repositories refactor
+Refactor CloudRepo on Android/iOS/web to accept familyId context:
+               * createTrack(familyId, ...)
+               * createPlaylist(familyId, ...)
+               * createCard(familyId, token, playlistId, visibility)
+               * fetchCardByToken(token) must:
+               * resolve token to familyId (store token doc includes familyId)
+               * then fetch within that family collection
+Token uniqueness:
+               * Token must be unique within a family; token collisions across families should be prevented for public tokens. Implement a global index:
+               * tokenIndex/<token> → { familyId, visibility, updatedAt }
+               * Enforced on create/update using a callable function OR transaction logic in client (transaction is acceptable for MVP). Document limitations if using client-side transaction only.
+________________
+
+
+F) Web resolver updates
+Update /t/<token> resolver to:
+               * look up tokenIndex/<token>
+               * then fetch card/playlist/tracks in that family scope
+               * respect visibility:
+               * if not public → show “This card is private.”
+Also update web admin to support:
+               * create family (or select current family)
+               * invite members
+               * switch visibility of a card/public playlist
+________________
+
+
+G) Deliverables
+               1. Updated Android app:
+               * Sign-in + Family screens
+               * Invite/join flows
+               * CloudRepo refactor to family scoping
+               * Migration prompt + copy old docs into family
+               2. Updated iOS app:
+               * Same sign-in + family features
+               * Same token handling
+               3. Updated web admin + resolver:
+               * Family context selection
+               * Invite management
+               * tokenIndex usage
+               4. Security rules + docs:
+               * Provide rule files
+               * Update README with:
+               * “Family Sharing setup”
+               * “Making a card public vs family-only”
+               * “Kristy join steps”
+               5. Tests
+               * Unit tests for:
+               * invite code parsing/validation
+               * tokenIndex lookup logic
+               * rules assumptions documented (no need to fully test rules, but add a “rules expectations” doc)
+Proceed now and implement everything.
+---
