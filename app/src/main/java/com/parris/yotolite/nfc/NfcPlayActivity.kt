@@ -23,6 +23,7 @@ import kotlinx.coroutines.launch
 class NfcPlayActivity : AppCompatActivity() {
     private lateinit var tvStatus: TextView
     private lateinit var btnRetry: Button
+    private lateinit var btnBackHome: Button
     private var lastProcessedToken: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,6 +32,10 @@ class NfcPlayActivity : AppCompatActivity() {
 
         tvStatus = findViewById(R.id.tvNfcStatus)
         btnRetry = findViewById(R.id.btnNfcRetry)
+
+        // Back button
+        btnBackHome = findViewById(R.id.btnBackHome)
+        btnBackHome.setOnClickListener { finish() }
 
         btnRetry.setOnClickListener {
             tvStatus.text = "Waiting for NFC tag..."
