@@ -1,5 +1,9 @@
 [
     {
+        "merged": "com.parris.joshtap.app-merged_res-45:/layout_item_assigned_track.xml.flat",
+        "source": "com.parris.joshtap.app-main-47:/layout/item_assigned_track.xml"
+    },
+    {
         "merged": "com.parris.joshtap.app-merged_res-45:/layout_fragment_play.xml.flat",
         "source": "com.parris.joshtap.app-main-47:/layout/fragment_play.xml"
     },
@@ -10,6 +14,10 @@
     {
         "merged": "com.parris.joshtap.app-merged_res-45:/layout_activity_nfc_write.xml.flat",
         "source": "com.parris.joshtap.app-main-47:/layout/activity_nfc_write.xml"
+    },
+    {
+        "merged": "com.parris.joshtap.app-merged_res-45:/layout_activity_card_detail.xml.flat",
+        "source": "com.parris.joshtap.app-main-47:/layout/activity_card_detail.xml"
     },
     {
         "merged": "com.parris.joshtap.app-merged_res-45:/layout_activity_main.xml.flat",

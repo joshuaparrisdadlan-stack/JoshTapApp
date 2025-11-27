@@ -42,6 +42,10 @@
         <activity
             android:name="com.parris.joshtap.nfc.NfcWriteActivity"
             android:exported="true" />
+
+        <activity
+            android:name=".CardDetailActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

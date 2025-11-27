@@ -63,6 +63,9 @@
         <activity
             android:name="com.parris.joshtap.nfc.NfcWriteActivity"
             android:exported="true" />
+        <activity
+            android:name="com.parris.joshtap.CardDetailActivity"
+            android:exported="false" />
 
         <service
             android:name="com.google.firebase.components.ComponentDiscoveryService"

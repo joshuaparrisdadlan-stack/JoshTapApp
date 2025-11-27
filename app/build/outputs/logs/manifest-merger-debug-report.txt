@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:2:1-47:12
-INJECTED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:2:1-47:12
-INJECTED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:2:1-47:12
-INJECTED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:2:1-47:12
+ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:2:1-51:12
+INJECTED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:2:1-51:12
+INJECTED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:2:1-51:12
+INJECTED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:2:1-51:12
 MERGED from [com.google.android.material:material:1.9.0] C:\Users\joshu\.gradle\caches\transforms-3\1d61e41dea0e4f325a9b779d951b3b7f\transformed\material-1.9.0\AndroidManifest.xml:17:1-26:12
 MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] C:\Users\joshu\.gradle\caches\transforms-3\ae0d01793d6280b0a28901d9f00c0742\transformed\constraintlayout-2.1.4\AndroidManifest.xml:2:1-11:12
 MERGED from [androidx.appcompat:appcompat-resources:1.6.1] C:\Users\joshu\.gradle\caches\transforms-3\b60575126356314a2cd1ed302ab9cf6c\transformed\jetified-appcompat-resources-1.6.1\AndroidManifest.xml:17:1-22:12
@@ -128,8 +128,8 @@ ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\mai
 	android:name
 		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:11:19-54
 application
-ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:13:5-45:19
-INJECTED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:13:5-45:19
+ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:13:5-49:19
+INJECTED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:13:5-49:19
 MERGED from [com.google.android.material:material:1.9.0] C:\Users\joshu\.gradle\caches\transforms-3\1d61e41dea0e4f325a9b779d951b3b7f\transformed\material-1.9.0\AndroidManifest.xml:24:5-20
 MERGED from [com.google.android.material:material:1.9.0] C:\Users\joshu\.gradle\caches\transforms-3\1d61e41dea0e4f325a9b779d951b3b7f\transformed\material-1.9.0\AndroidManifest.xml:24:5-20
 MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] C:\Users\joshu\.gradle\caches\transforms-3\ae0d01793d6280b0a28901d9f00c0742\transformed\constraintlayout-2.1.4\AndroidManifest.xml:9:5-20
@@ -234,6 +234,12 @@ ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\mai
 		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:44:13-36
 	android:name
 		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:43:13-67
+activity#com.parris.joshtap.CardDetailActivity
+ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:46:9-48:40
+	android:exported
+		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:48:13-37
+	android:name
+		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:47:13-47
 uses-sdk
 INJECTED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml

@@ -13,11 +13,16 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.parris.joshtap.backup.BackupManager
 import com.parris.joshtap.data.AppDatabase
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.parris.joshtap.ui.CardAdapter
 import kotlinx.coroutines.launch
 
 class CardsFragment : Fragment() {
     private lateinit var viewModel: CardsViewModel
-    private lateinit var tvCards: TextView
+    private lateinit var tvCardsEmpty: TextView
+    private var rvCards: RecyclerView? = null
+    private lateinit var cardAdapter: CardAdapter
 
     private val importLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
@@ -34,7 +39,15 @@ class CardsFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val v = inflater.inflate(R.layout.fragment_cards, container, false)
-        tvCards = v.findViewById(R.id.tvCards)
+        rvCards = v.findViewById(R.id.rvCards)
+        tvCardsEmpty = v.findViewById(R.id.tvCardsEmpty)
+        cardAdapter = CardAdapter(onItemClick = { card ->
+            val intent = Intent(requireContext(), CardDetailActivity::class.java)
+            intent.putExtra("cardId", card.id)
+            startActivity(intent)
+        })
+        rvCards?.layoutManager = LinearLayoutManager(requireContext())
+        rvCards?.adapter = cardAdapter
         val btnCreate = v.findViewById<Button>(R.id.btnCreateCard)
         val btnExport = v.findViewById<Button>(R.id.btnExport)
         val btnImport = v.findViewById<Button>(R.id.btnImport)
@@ -47,11 +60,16 @@ class CardsFragment : Fragment() {
                 if (tracks.isNotEmpty()) {
                     val first = tracks[0]
                     viewModel.createCardWithTrack("Demo Card", first.id) { cardId, token ->
-                        tvCards.text = "Created card id=$cardId token=$token"
+                        // refresh list
+                        viewModel.loadCards()
+                        tvCardsEmpty.visibility = View.GONE
+                        rvCards?.visibility = View.VISIBLE
                         btnCreate.isEnabled = true
                     }
                 } else {
-                    tvCards.text = "No tracks available to assign. Import demo first."
+                    tvCardsEmpty.text = "No tracks available to assign. Import demo first."
+                    tvCardsEmpty.visibility = View.VISIBLE
+                    rvCards?.visibility = View.GONE
                     btnCreate.isEnabled = true
                 }
             }
@@ -65,20 +83,29 @@ class CardsFragment : Fragment() {
             importLauncher.launch("application/zip")
         }
 
-        // Observe cards from ViewModel
+        // Observe cards from ViewModel and update RecyclerView
         viewModel.cards.observe(viewLifecycleOwner) { list ->
             if (list.isNullOrEmpty()) {
-                tvCards.text = "No cards"
+                tvCardsEmpty.text = "No cards"
+                tvCardsEmpty.visibility = View.VISIBLE
+                rvCards?.visibility = View.GONE
             } else {
-                val sb = StringBuilder()
-                list.forEach { sb.append("• ").append(it.name).append(" (token=").append(it.token).append(")\n") }
-                tvCards.text = sb.toString()
+                tvCardsEmpty.visibility = View.GONE
+                rvCards?.visibility = View.VISIBLE
+                cardAdapter.submitList(list)
             }
         }
+
+        // item clicks handled via adapter's onItemClick lambda
 
         viewModel.loadCards()
 
         return v
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.loadCards()
     }
 
     private fun handleExport() {
@@ -87,10 +114,10 @@ class CardsFragment : Fragment() {
             val zipUri = BackupManager.exportToZip(requireContext(), db)
 
             if (zipUri != null) {
-                tvCards.text = "Export successful!\n$zipUri"
+                tvCardsEmpty.text = "Export successful!\n$zipUri"
                 Toast.makeText(requireContext(), "Backup created in cache", Toast.LENGTH_SHORT).show()
             } else {
-                tvCards.text = "Export failed"
+                tvCardsEmpty.text = "Export failed"
                 Toast.makeText(requireContext(), "Export failed", Toast.LENGTH_SHORT).show()
             }
         }
@@ -102,10 +129,10 @@ class CardsFragment : Fragment() {
             val success = BackupManager.importFromZip(requireContext(), uri, db)
 
             if (success) {
-                tvCards.text = "Import successful!"
+                tvCardsEmpty.text = "Import successful!"
                 Toast.makeText(requireContext(), "Cards and tracks imported", Toast.LENGTH_SHORT).show()
             } else {
-                tvCards.text = "Import failed"
+                tvCardsEmpty.text = "Import failed"
                 Toast.makeText(requireContext(), "Import failed", Toast.LENGTH_SHORT).show()
             }
         }

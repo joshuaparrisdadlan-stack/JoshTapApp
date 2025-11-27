@@ -2,6 +2,7 @@ R_DEF: Internal format may change without notice
 local
 drawable ic_add_24
 id btnAddToCard
+id btnAddTracks
 id btnBackHome
 id btnContinue
 id btnCreateCard
@@ -15,19 +16,26 @@ id btnNfcWrite
 id btnPlayPause
 id btnPlayPreview
 id btnPrev
+id btnRemove
+id btnSave
 id btnSignIn
 id btnWriteCard
 id cbMedia
 id cbNfc
+id dragHandle
 id emptyState
 id etCardToken
 id etEmail
 id etPassword
 id fabImport
 id progressBar
+id rvAssignedTracks
+id rvCards
 id rvTracks
 id tabs
-id tvCards
+id tvCardTitle
+id tvCardToken
+id tvCardsEmpty
 id tvDebug
 id tvEmptyMessage
 id tvItem
@@ -36,10 +44,12 @@ id tvNowPlaying
 id tvScanStatus
 id tvSubtitle
 id tvTitle
+id tvTrackCount
 id tvTrackTitle
 id tvWelcome
 id tvWriteStatus
 id viewPager
+layout activity_card_detail
 layout activity_cloud_auth
 layout activity_main
 layout activity_nfc_play
@@ -49,6 +59,7 @@ layout bs_track_actions
 layout fragment_cards
 layout fragment_library
 layout fragment_play
+layout item_assigned_track
 layout item_card
 layout item_track
 string app_name
