@@ -53,7 +53,9 @@ class LibraryFragment : Fragment() {
             }
 
             viewModel.addTrack(displayName, uri.toString(), durationMs) { id ->
-                // optional: show a brief message in UI
+                requireActivity().runOnUiThread {
+                    android.widget.Toast.makeText(requireContext(), "Imported: $displayName", android.widget.Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
@@ -71,7 +73,15 @@ class LibraryFragment : Fragment() {
 
         // Optional RecyclerView if present in future layouts
         val rv = v.findViewById<RecyclerView?>(R.id.rvTracks)
-        val adapter = TrackAdapter()
+        val adapter = TrackAdapter(onItemClick = { track ->
+            // show bottom sheet with actions
+            com.parris.yotolite.ui.TrackActionBottomSheet.show(requireContext(), parentFragmentManager, track.displayName, track.localUri, track.id) { cardId ->
+                // show snackbar confirmation after adding
+                view?.let { root ->
+                    com.google.android.material.snackbar.Snackbar.make(root, "Added to card", com.google.android.material.snackbar.Snackbar.LENGTH_SHORT).show()
+                }
+            }
+        })
         rv?.layoutManager = LinearLayoutManager(requireContext())
         rv?.adapter = adapter
 

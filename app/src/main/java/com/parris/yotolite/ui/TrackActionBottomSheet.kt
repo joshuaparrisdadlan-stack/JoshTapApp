@@ -9,14 +9,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.parris.yotolite.R
 import com.parris.yotolite.PlayerController
 import com.parris.yotolite.data.AppDatabase
 import com.parris.yotolite.data.CardEntity
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class TrackActionBottomSheet : BottomSheetDialogFragment() {
     private var title: String? = null
@@ -72,34 +73,81 @@ class TrackActionBottomSheet : BottomSheetDialogFragment() {
         }
 
         btnAdd.setOnClickListener {
-            // show list of cards to add to
-            CoroutineScope(Dispatchers.Main).launch {
-                val db = AppDatabase.getInstance(requireContext())
-                val cards = db.appDao().listCards()
+            // show list of cards to add to — do DB IO off main thread
+            lifecycleScope.launch {
+                val db = try {
+                    AppDatabase.getInstance(requireContext())
+                } catch (e: Exception) {
+                    AlertDialog.Builder(requireContext())
+                        .setMessage("Unable to access database: ${e.message}")
+                        .setPositiveButton("OK", null)
+                        .show()
+                    return@launch
+                }
+
+                val cards = try {
+                    withContext(Dispatchers.IO) { db.appDao().listCards() }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        AlertDialog.Builder(requireContext())
+                            .setMessage("Failed to load cards: ${e.message}")
+                            .setPositiveButton("OK", null)
+                            .show()
+                    }
+                    return@launch
+                }
+
                 if (cards.isEmpty()) {
                     AlertDialog.Builder(requireContext())
                         .setMessage("No cards available. Create a card first in Cards tab.")
                         .setPositiveButton("OK", null)
                         .show()
-                } else {
-                    val names = cards.map { it.name + " (" + it.token + ")" }.toTypedArray()
-                    AlertDialog.Builder(requireContext())
-                        .setTitle("Add to card")
-                        .setItems(names) { _, which ->
-                            val card = cards[which]
-                            // perform add
-                            CoroutineScope(Dispatchers.IO).launch {
-                                val repo = com.parris.yotolite.data.AppRepository(db)
-                                repo.addTrackToCard(card.id, trackId)
-                                // notify on main
-                                CoroutineScope(Dispatchers.Main).launch {
-                                    _onAdded?.invoke(card.id)
+                    return@launch
+                }
+
+                val names = cards.map { it.name + " (" + it.token + ")" }.toTypedArray()
+                AlertDialog.Builder(requireContext())
+                    .setTitle("Add to card")
+                    .setItems(names) { _, which ->
+                        // guard index
+                        if (which < 0 || which >= cards.size) return@setItems
+                        val card = cards[which]
+                        // perform add on IO dispatcher
+                        lifecycleScope.launch {
+                            try {
+                                withContext(Dispatchers.IO) {
+                                    val repo = com.parris.yotolite.data.AppRepository(db)
+                                    repo.addTrackToCard(card.id, trackId)
+                                }
+                                // notify on main thread
+                                withContext(Dispatchers.Main) {
+                                    try {
+                                        _onAdded?.invoke(card.id)
+                                    } catch (e: Exception) {
+                                        // swallow callback errors
+                                    }
+
+                                    // show confirmation using activity root view if available
+                                    val root = activity?.findViewById<View>(android.R.id.content)
+                                    if (root != null) {
+                                        com.google.android.material.snackbar.Snackbar
+                                            .make(root, "Added to ${card.name}", com.google.android.material.snackbar.Snackbar.LENGTH_SHORT)
+                                            .show()
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                withContext(Dispatchers.Main) {
+                                    AlertDialog.Builder(requireContext())
+                                        .setMessage("Failed to add track to card: ${e.message}")
+                                        .setPositiveButton("OK", null)
+                                        .show()
                                 }
                             }
                         }
-                        .show()
-                }
+                    }
+                    .show()
             }
+
             dismiss()
         }
 
