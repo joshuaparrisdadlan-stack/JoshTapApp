@@ -4,12 +4,24 @@
         "source": "com.parris.yotolite.app-main-47:/layout/activity_nfc_write.xml"
     },
     {
-        "merged": "com.parris.yotolite.app-merged_res-45:/layout_fragment_play.xml.flat",
-        "source": "com.parris.yotolite.app-main-47:/layout/fragment_play.xml"
-    },
-    {
         "merged": "com.parris.yotolite.app-merged_res-45:/layout_activity_nfc_play.xml.flat",
         "source": "com.parris.yotolite.app-main-47:/layout/activity_nfc_play.xml"
+    },
+    {
+        "merged": "com.parris.yotolite.app-merged_res-45:/layout_item_track.xml.flat",
+        "source": "com.parris.yotolite.app-main-47:/layout/item_track.xml"
+    },
+    {
+        "merged": "com.parris.yotolite.app-merged_res-45:/layout_bs_track_actions.xml.flat",
+        "source": "com.parris.yotolite.app-main-47:/layout/bs_track_actions.xml"
+    },
+    {
+        "merged": "com.parris.yotolite.app-merged_res-45:/layout_activity_cloud_auth.xml.flat",
+        "source": "com.parris.yotolite.app-main-47:/layout/activity_cloud_auth.xml"
+    },
+    {
+        "merged": "com.parris.yotolite.app-merged_res-45:/layout_fragment_play.xml.flat",
+        "source": "com.parris.yotolite.app-main-47:/layout/fragment_play.xml"
     },
     {
         "merged": "com.parris.yotolite.app-merged_res-45:/layout_fragment_cards.xml.flat",
@@ -28,19 +40,11 @@
         "source": "com.parris.yotolite.app-main-47:/layout/item_card.xml"
     },
     {
-        "merged": "com.parris.yotolite.app-merged_res-45:/layout_item_track.xml.flat",
-        "source": "com.parris.yotolite.app-main-47:/layout/item_track.xml"
-    },
-    {
         "merged": "com.parris.yotolite.app-merged_res-45:/layout_activity_onboarding.xml.flat",
         "source": "com.parris.yotolite.app-main-47:/layout/activity_onboarding.xml"
     },
     {
         "merged": "com.parris.yotolite.app-merged_res-45:/drawable_ic_add_24.xml.flat",
         "source": "com.parris.yotolite.app-main-47:/drawable/ic_add_24.xml"
-    },
-    {
-        "merged": "com.parris.yotolite.app-merged_res-45:/layout_activity_cloud_auth.xml.flat",
-        "source": "com.parris.yotolite.app-main-47:/layout/activity_cloud_auth.xml"
     }
 ]

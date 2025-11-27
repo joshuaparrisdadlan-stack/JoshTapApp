@@ -8,7 +8,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.parris.yotolite.R
 import com.parris.yotolite.data.TrackEntity
 
-class TrackAdapter(private var items: List<TrackEntity> = emptyList()) : RecyclerView.Adapter<TrackAdapter.VH>() {
+class TrackAdapter(
+    private var items: List<TrackEntity> = emptyList(),
+    private val onItemClick: ((TrackEntity) -> Unit)? = null
+) : RecyclerView.Adapter<TrackAdapter.VH>() {
     class VH(view: View) : RecyclerView.ViewHolder(view) {
         val tv: TextView = view.findViewById(R.id.tvItem)
     }
@@ -20,7 +23,15 @@ class TrackAdapter(private var items: List<TrackEntity> = emptyList()) : Recycle
 
     override fun onBindViewHolder(holder: VH, position: Int) {
         val t = items[position]
-        holder.tv.text = t.displayName
+        val durationMs = t.durationMs
+        val mins = (durationMs / 1000) / 60
+        val secs = (durationMs / 1000) % 60
+        val dur = if (durationMs > 0) String.format("%d:%02d", mins, secs) else ""
+        holder.tv.text = if (dur.isNotEmpty()) "${t.displayName} — $dur" else t.displayName
+
+        holder.itemView.setOnClickListener {
+            onItemClick?.invoke(t)
+        }
     }
 
     override fun getItemCount(): Int = items.size

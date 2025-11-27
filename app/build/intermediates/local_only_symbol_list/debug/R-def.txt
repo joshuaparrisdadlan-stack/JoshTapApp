@@ -1,6 +1,8 @@
 R_DEF: Internal format may change without notice
 local
 drawable ic_add_24
+id btnAddToCard
+id btnBackHome
 id btnContinue
 id btnCreateCard
 id btnExport
@@ -11,6 +13,7 @@ id btnNfcPlay
 id btnNfcRetry
 id btnNfcWrite
 id btnPlayPause
+id btnPlayPreview
 id btnPrev
 id btnSignIn
 id btnWriteCard
@@ -33,6 +36,7 @@ id tvNowPlaying
 id tvScanStatus
 id tvSubtitle
 id tvTitle
+id tvTrackTitle
 id tvWelcome
 id tvWriteStatus
 id viewPager
@@ -41,6 +45,7 @@ layout activity_main
 layout activity_nfc_play
 layout activity_nfc_write
 layout activity_onboarding
+layout bs_track_actions
 layout fragment_cards
 layout fragment_library
 layout fragment_play

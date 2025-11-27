@@ -3234,6 +3234,8 @@ id browser_actions_menu_item_icon
 id browser_actions_menu_item_text
 id browser_actions_menu_items
 id browser_actions_menu_view
+id btnAddToCard
+id btnBackHome
 id btnContinue
 id btnCreateCard
 id btnExport
@@ -3244,6 +3246,7 @@ id btnNfcPlay
 id btnNfcRetry
 id btnNfcWrite
 id btnPlayPause
+id btnPlayPreview
 id btnPrev
 id btnSignIn
 id btnWriteCard
@@ -3648,6 +3651,7 @@ id tvNowPlaying
 id tvScanStatus
 id tvSubtitle
 id tvTitle
+id tvTrackTitle
 id tvWelcome
 id tvWriteStatus
 id unchecked
@@ -3796,6 +3800,7 @@ layout activity_nfc_write
 layout activity_onboarding
 layout browser_actions_context_menu_page
 layout browser_actions_context_menu_row
+layout bs_track_actions
 layout custom_dialog
 layout design_bottom_navigation_item
 layout design_bottom_sheet_dialog
