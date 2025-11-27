@@ -2,7 +2,7 @@ package com.parris.yotolite.backup
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
+import com.parris.yotolite.util.AppLog
 import com.parris.yotolite.data.AppDatabase
 import com.parris.yotolite.data.CardEntity
 import com.parris.yotolite.data.CardTrackJoin
@@ -18,9 +18,9 @@ import java.io.FileReader
 import java.io.FileWriter
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
-import java.io.ZipEntry
-import java.io.ZipFile
-import java.io.ZipOutputStream
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
+import java.util.zip.ZipOutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -62,10 +62,10 @@ object BackupManager {
                 zos.closeEntry()
             }
 
-            Log.d(TAG, "Export completed: ${zipFile.absolutePath}")
+            AppLog.d(TAG, "Export completed: ${zipFile.absolutePath}")
             Uri.fromFile(zipFile)
         } catch (ex: Exception) {
-            Log.e(TAG, "Export failed", ex)
+            AppLog.e(TAG, "Export failed", ex)
             null
         }
     }
@@ -107,10 +107,10 @@ object BackupManager {
             }
 
             tempFile.delete()
-            Log.d(TAG, "Import completed: ${data.tracks.size} tracks, ${data.cards.size} cards")
+            AppLog.d(TAG, "Import completed: ${data.tracks.size} tracks, ${data.cards.size} cards")
             true
         } catch (ex: Exception) {
-            Log.e(TAG, "Import failed", ex)
+            AppLog.e(TAG, "Import failed", ex)
             false
         }
     }

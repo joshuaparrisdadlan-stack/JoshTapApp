@@ -1,4 +1,4 @@
-package com.parris.yotolite.cloud
+﻿package com.parris.yotolite.cloud
 
 import android.os.Bundle
 import android.widget.Button
@@ -12,6 +12,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
+/**
+ * CloudAuthActivity  lightweight scaffold for cloud sign-in (email/password)
+ *
+ * Note: this is a UI stub. Add Firebase Auth dependency and real sign-in flows.
+ */
 class CloudAuthActivity : AppCompatActivity() {
     private val auth = FirebaseAuth.getInstance()
 

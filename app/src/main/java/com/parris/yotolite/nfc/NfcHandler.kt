@@ -9,7 +9,7 @@ import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.nfc.tech.Ndef
 import android.nfc.tech.NdefFormatable
-import android.util.Log
+import com.parris.yotolite.util.AppLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.IOException
@@ -23,6 +23,9 @@ object NfcHandler {
     private const val TAG = "NfcHandler"
     private const val SCHEME = "https://yotolite.app/play/"
     private const val MIME_TYPE = "text/plain"
+    // Simple debounce to avoid multiple rapid reads
+    private var lastReadAt: Long = 0
+    private const val READ_DEBOUNCE_MS = 1000L
 
     /**
      * Initializes NFC foreground dispatch for MainActivity.
@@ -36,7 +39,7 @@ object NfcHandler {
     ) {
         val nfcAdapter = NfcAdapter.getDefaultAdapter(context)
         if (nfcAdapter == null) {
-            Log.w(TAG, "NFC not supported on this device")
+            AppLog.w(TAG, "NFC not supported on this device")
             return
         }
 
@@ -48,9 +51,9 @@ object NfcHandler {
 
         try {
             nfcAdapter.enableForegroundDispatch(activity, pendingIntent, intentFilter, techList)
-            Log.d(TAG, "NFC foreground dispatch enabled")
+            AppLog.d(TAG, "NFC foreground dispatch enabled")
         } catch (ex: Exception) {
-            Log.e(TAG, "Error enabling foreground dispatch", ex)
+            AppLog.e(TAG, "Error enabling foreground dispatch", ex)
         }
     }
 
@@ -61,7 +64,7 @@ object NfcHandler {
     fun disableForegroundDispatch(context: Context, activity: android.app.Activity) {
         val nfcAdapter = NfcAdapter.getDefaultAdapter(context)
         nfcAdapter?.disableForegroundDispatch(activity)
-        Log.d(TAG, "NFC foreground dispatch disabled")
+        AppLog.d(TAG, "NFC foreground dispatch disabled")
     }
 
     /**
@@ -69,6 +72,12 @@ object NfcHandler {
      * Extracts from URI record: "https://yotolite.app/play/{token}"
      */
     suspend fun readTokenFromTag(tag: Tag): String? = withContext(Dispatchers.IO) {
+        val now = System.currentTimeMillis()
+        if (now - lastReadAt < READ_DEBOUNCE_MS) {
+            AppLog.d(TAG, "Read ignored due to debounce")
+            return@withContext null
+        }
+        lastReadAt = now
         try {
             val ndef = Ndef.get(tag) ?: return@withContext null
             ndef.connect()
@@ -76,10 +85,10 @@ object NfcHandler {
             ndef.close()
 
             val token = parseTokenFromNdef(message)
-            Log.d(TAG, "Token read from tag: $token")
+            AppLog.d(TAG, "Token read from tag: $token")
             token
         } catch (ex: IOException) {
-            Log.e(TAG, "Error reading NDEF from tag", ex)
+            AppLog.e(TAG, "Error reading NDEF from tag", ex)
             null
         }
     }
@@ -98,8 +107,8 @@ object NfcHandler {
                 ndef.connect()
                 if (ndef.isWritable) {
                     ndef.writeNdefMessage(ndefMessage)
-                    ndef.close()
-                    Log.d(TAG, "Token written to tag: $token")
+                            ndef.close()
+                            AppLog.d(TAG, "Token written to tag: $token")
                     return@withContext true
                 }
                 ndef.close()
@@ -110,15 +119,15 @@ object NfcHandler {
                     ndefFormatable.connect()
                     ndefFormatable.format(ndefMessage)
                     ndefFormatable.close()
-                    Log.d(TAG, "Tag formatted and token written: $token")
+                    AppLog.d(TAG, "Tag formatted and token written: $token")
                     return@withContext true
                 }
             }
 
-            Log.w(TAG, "Tag is not writable")
+            AppLog.w(TAG, "Tag is not writable")
             return@withContext false
         } catch (ex: IOException) {
-            Log.e(TAG, "Error writing NDEF to tag", ex)
+            AppLog.e(TAG, "Error writing NDEF to tag", ex)
             return@withContext false
         }
     }
@@ -129,9 +138,14 @@ object NfcHandler {
      */
     private fun parseTokenFromNdef(message: NdefMessage): String? {
         for (record in message.records) {
-            if (record.tnf == NdefRecord.TNF_WELL_KNOWN && record.type contentEquals NdefRecord.RTD_URI) {
-                val uri = String(record.payload, 1, record.payload.size - 1)
-                Log.d(TAG, "Found URI record: $uri")
+            if (record.tnf == NdefRecord.TNF_WELL_KNOWN && record.type.contentEquals(NdefRecord.RTD_URI)) {
+                val uri = try {
+                    String(record.payload, 1, record.payload.size - 1, Charsets.UTF_8)
+                } catch (ex: Exception) {
+                    AppLog.w(TAG, "Failed to parse URI payload", ex)
+                    continue
+                }
+                AppLog.d(TAG, "Found URI record: $uri")
 
                 if (uri.startsWith(SCHEME)) {
                     val token = uri.substring(SCHEME.length)
@@ -141,7 +155,7 @@ object NfcHandler {
                 }
             }
         }
-        Log.w(TAG, "No valid token found in NDEF message")
+        AppLog.w(TAG, "No valid token found in NDEF message")
         return null
     }
 

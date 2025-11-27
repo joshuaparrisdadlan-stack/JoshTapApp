@@ -41,24 +41,20 @@ class CardsFragment : Fragment() {
 
         btnCreate.setOnClickListener {
             btnCreate.isEnabled = false
-            Thread {
+            viewLifecycleOwner.lifecycleScope.launch {
                 val db = AppDatabase.getInstance(requireContext())
                 val tracks = db.appDao().listTracks()
                 if (tracks.isNotEmpty()) {
                     val first = tracks[0]
-                    requireActivity().runOnUiThread {
-                        viewModel.createCardWithTrack("Demo Card", first.id) { cardId, token ->
-                            tvCards.text = "Created card id=$cardId token=$token"
-                            btnCreate.isEnabled = true
-                        }
-                    }
-                } else {
-                    requireActivity().runOnUiThread {
-                        tvCards.text = "No tracks available to assign. Import demo first."
+                    viewModel.createCardWithTrack("Demo Card", first.id) { cardId, token ->
+                        tvCards.text = "Created card id=$cardId token=$token"
                         btnCreate.isEnabled = true
                     }
+                } else {
+                    tvCards.text = "No tracks available to assign. Import demo first."
+                    btnCreate.isEnabled = true
                 }
-            }.start()
+            }
         }
 
         btnExport.setOnClickListener {
@@ -68,6 +64,19 @@ class CardsFragment : Fragment() {
         btnImport.setOnClickListener {
             importLauncher.launch("application/zip")
         }
+
+        // Observe cards from ViewModel
+        viewModel.cards.observe(viewLifecycleOwner) { list ->
+            if (list.isNullOrEmpty()) {
+                tvCards.text = "No cards"
+            } else {
+                val sb = StringBuilder()
+                list.forEach { sb.append("• ").append(it.name).append(" (token=").append(it.token).append(")\n") }
+                tvCards.text = sb.toString()
+            }
+        }
+
+        viewModel.loadCards()
 
         return v
     }

@@ -2,7 +2,7 @@ package com.parris.yotolite.cloud
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
+import com.parris.yotolite.util.AppLog
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
@@ -10,6 +10,7 @@ import com.google.firebase.storage.FirebaseStorage
 import com.parris.yotolite.data.AppDatabase
 import com.parris.yotolite.data.CardEntity
 import com.parris.yotolite.data.TrackEntity
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.tasks.await
 
 /**
@@ -27,7 +28,7 @@ class CloudRepo(private val context: Context) {
             auth.signInAnonymously().await()
             true
         } catch (ex: Exception) {
-            Log.e(TAG, "Anon sign-in failed", ex)
+            AppLog.e(TAG, "Anon sign-in failed", ex)
             false
         }
     }
@@ -40,7 +41,7 @@ class CloudRepo(private val context: Context) {
                 "durationMs" to track.durationMs
             )
             val doc = firestore.collection("tracks").add(map).await()
-            Log.d(TAG, "Uploaded track doc=${doc.id}")
+            AppLog.d(TAG, "Uploaded track doc=${doc.id}")
 
             // Optionally upload file to storage if localUri provided
             if (localUri != null) {
@@ -54,7 +55,7 @@ class CloudRepo(private val context: Context) {
 
             return true
         } catch (ex: Exception) {
-            Log.e(TAG, "uploadTrack failed", ex)
+            AppLog.e(TAG, "uploadTrack failed", ex)
             return false
         }
     }
@@ -70,7 +71,7 @@ class CloudRepo(private val context: Context) {
             firestore.collection("cards").add(map).await()
             return true
         } catch (ex: Exception) {
-            Log.e(TAG, "uploadCard failed", ex)
+            AppLog.e(TAG, "uploadCard failed", ex)
             return false
         }
     }
@@ -93,9 +94,7 @@ class CloudRepo(private val context: Context) {
             tracks.forEach { t ->
                 // try to upload file if available
                 val localUri = if (t.localUri.isNullOrEmpty()) null else Uri.parse(t.localUri)
-                val success = uploadTrack(t, localUri)
-                // Note: uploadTrack currently does not return remote id; we query by unique fields after upload
-                // For now we won't enforce mapping but leave the remote to store metadata and remoteUrl if available.
+                uploadTrack(t, localUri)
             }
 
             // Upload cards with track id references
@@ -108,7 +107,7 @@ class CloudRepo(private val context: Context) {
 
             return true
         } catch (ex: Exception) {
-            Log.e(TAG, "syncLocalToCloud failed", ex)
+            AppLog.e(TAG, "syncLocalToCloud failed", ex)
             return false
         }
     }
@@ -120,7 +119,7 @@ class CloudRepo(private val context: Context) {
             val doc = firestore.collection("families").add(map).await()
             doc.id
         } catch (ex: Exception) {
-            Log.e(TAG, "createFamily failed", ex)
+            AppLog.e(TAG, "createFamily failed", ex)
             null
         }
     }
@@ -131,7 +130,7 @@ class CloudRepo(private val context: Context) {
             firestore.collection("familyInvites").add(map).await()
             true
         } catch (ex: Exception) {
-            Log.e(TAG, "inviteToFamily failed", ex)
+            AppLog.e(TAG, "inviteToFamily failed", ex)
             false
         }
     }
@@ -142,7 +141,7 @@ class CloudRepo(private val context: Context) {
             firestore.collection("families").document(familyId).collection("members").add(map).await()
             true
         } catch (ex: Exception) {
-            Log.e(TAG, "joinFamily failed", ex)
+            AppLog.e(TAG, "joinFamily failed", ex)
             false
         }
     }

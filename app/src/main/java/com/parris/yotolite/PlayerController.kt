@@ -2,17 +2,25 @@ package com.parris.yotolite
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
+import com.parris.yotolite.util.AppLog
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
 object PlayerController {
     private const val TAG = "PlayerController"
     private var player: ExoPlayer? = null
-    private var listener: PlayerEventListener? = null
+    private var listener: Player.Listener? = null
+    private val scope = CoroutineScope(Dispatchers.Main + Job())
+    private var positionJob: Job? = null
 
     private val _isPlaying = MutableStateFlow(false)
     val isPlaying: StateFlow<Boolean> = _isPlaying
@@ -39,15 +47,19 @@ object PlayerController {
         if (player == null) {
             player = ExoPlayer.Builder(context).build()
             setupPlayerListener()
-            Log.d(TAG, "ExoPlayer initialized")
+            startPositionUpdates()
+            AppLog.d(TAG, "ExoPlayer initialized")
         }
     }
 
     fun release() {
-        player?.removeListener(listener)
+        positionJob?.cancel()
+        listener?.let { player?.removeListener(it) }
         player?.release()
         player = null
-        Log.d(TAG, "ExoPlayer released")
+        positionJob = null
+        scope.coroutineContext[Job]?.cancel()
+        AppLog.d(TAG, "ExoPlayer released")
     }
 
     fun playTracks(uris: List<Uri>) {
@@ -64,7 +76,7 @@ object PlayerController {
         _isPlaying.value = true
         _hasNext.value = uris.size > 1
 
-        Log.d(TAG, "Playing ${uris.size} tracks")
+        AppLog.d(TAG, "Playing ${uris.size} tracks")
     }
 
     fun play() {
@@ -106,44 +118,51 @@ object PlayerController {
     fun getCurrentPlayer(): ExoPlayer? = player
 
     private fun setupPlayerListener() {
-        listener = PlayerEventListener()
-        player?.addListener(listener!!)
-    }
+        listener = object : Player.Listener {
+            override fun onPlaybackStateChanged(state: Int) {
+                _isPlaying.value = state == Player.STATE_READY && player?.isPlaying == true
+                when (state) {
+                    Player.STATE_READY -> {
+                        _duration.value = player?.duration ?: 0L
+                        AppLog.d(TAG, "Player ready, duration: ${_duration.value}ms")
+                    }
+                    Player.STATE_ENDED -> {
+                        AppLog.d(TAG, "Playback ended")
+                    }
+                }
+            }
 
-    private inner class PlayerEventListener : Player.Listener {
-        override fun onPlaybackStateChanged(state: Int) {
-            _isPlaying.value = state == Player.STATE_READY && player?.isPlaying == true
-            when (state) {
-                Player.STATE_READY -> {
-                    _duration.value = player?.duration ?: 0L
-                    Log.d(TAG, "Player ready, duration: ${_duration.value}ms")
-                }
-                Player.STATE_ENDED -> {
-                    Log.d(TAG, "Playback ended")
-                }
+            override fun onIsPlayingChanged(isPlaying: Boolean) {
+                _isPlaying.value = isPlaying
+                AppLog.d(TAG, "Is playing: $isPlaying")
+            }
+
+            override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+                val p = player ?: return
+                _currentIndex.value = p.currentMediaItemIndex
+                _currentTitle.value = mediaItem?.localConfiguration?.uri?.lastPathSegment ?: "Track ${_currentIndex.value + 1}"
+                _hasNext.value = p.hasNext()
+                _hasPrevious.value = p.hasPrevious()
+                AppLog.d(TAG, "Media item transition to: ${_currentTitle.value}")
             }
         }
 
-        override fun onIsPlayingChanged(isPlaying: Boolean) {
-            _isPlaying.value = isPlaying
-            Log.d(TAG, "Is playing: $isPlaying")
+        player?.addListener(listener!!)
+    }
+    
+    private fun startPositionUpdates() {
+        positionJob?.cancel()
+        positionJob = scope.launch {
+            while (isActive) {
+                val pos = player?.currentPosition ?: 0L
+                _position.value = pos
+                delay(500)
+            }
         }
+    }
 
-        override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-            val p = player ?: return
-            _currentIndex.value = p.currentMediaItemIndex
-            _currentTitle.value = mediaItem?.localConfiguration?.uri?.lastPathSegment ?: "Track ${_currentIndex.value + 1}"
-            _hasNext.value = p.hasNext()
-            _hasPrevious.value = p.hasPrevious()
-            Log.d(TAG, "Media item transition to: ${_currentTitle.value}")
-        }
-
-        override fun onPositionDiscontinuity(
-            oldPosition: Player.PositionInfo,
-            newPosition: Player.PositionInfo,
-            reason: Int
-        ) {
-            _position.value = newPosition.positionMs
-        }
+    private fun stopPositionUpdates() {
+        positionJob?.cancel()
+        positionJob = null
     }
 }
