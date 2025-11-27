@@ -18,22 +18,28 @@ jobs:
           distribution: temurin
           java-version: '11'
 
-      - name: Change to Android project dir
+      - name: Install Gradle (if no wrapper present)
         run: |
-          echo "Changing directory to YotoLiteMVP for Android build steps"
-          cd YotoLiteMVP
+          sudo apt-get update
+          sudo apt-get install -y gradle
 
       - name: Build Debug
         run: |
-          cd YotoLiteMVP
-          chmod +x ./gradlew
-          ./gradlew assembleDebug
+          chmod +x ./gradlew || true
+          if [ -f ./gradlew ]; then
+            ./gradlew assembleDebug
+          else
+            gradle assembleDebug
+          fi
 
       - name: Run Unit Tests
         run: |
-          cd YotoLiteMVP
-          chmod +x ./gradlew
-          ./gradlew test
+          chmod +x ./gradlew || true
+          if [ -f ./gradlew ]; then
+            ./gradlew test
+          else
+            gradle test
+          fi
 
       - name: Run Instrumentation (emulator)
         run: echo "Add instrumentation steps if desired"
