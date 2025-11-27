@@ -4,7 +4,7 @@
     "type": "PACKAGED_MANIFESTS",
     "kind": "Directory"
   },
-  "applicationId": "com.parris.yotolite",
+  "applicationId": "com.parris.joshtap",
   "variantName": "debug",
   "elements": [
     {

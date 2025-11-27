@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.parris.yotolite.app-mergeDebugResources-43:/values-b+sr+Latn/values-b+sr+Latn.xml",
+            "outputFile": "com.parris.joshtap.app-mergeDebugResources-43:/values-b+sr+Latn/values-b+sr+Latn.xml",
             "map": [
                 {
                     "source": "C:\\Users\\joshu\\.gradle\\caches\\transforms-3\\cb4693b72a191ace0b7afba322a7d28c\\transformed\\jetified-media3-exoplayer-1.4.0\\res\\values-b+sr+Latn\\values-b+sr+Latn.xml",

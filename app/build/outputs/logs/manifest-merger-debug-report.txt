@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:2:1-46:12
-INJECTED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:2:1-46:12
-INJECTED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:2:1-46:12
-INJECTED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:2:1-46:12
+ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:2:1-47:12
+INJECTED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:2:1-47:12
+INJECTED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:2:1-47:12
+INJECTED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:2:1-47:12
 MERGED from [com.google.android.material:material:1.9.0] C:\Users\joshu\.gradle\caches\transforms-3\1d61e41dea0e4f325a9b779d951b3b7f\transformed\material-1.9.0\AndroidManifest.xml:17:1-26:12
 MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] C:\Users\joshu\.gradle\caches\transforms-3\ae0d01793d6280b0a28901d9f00c0742\transformed\constraintlayout-2.1.4\AndroidManifest.xml:2:1-11:12
 MERGED from [androidx.appcompat:appcompat-resources:1.6.1] C:\Users\joshu\.gradle\caches\transforms-3\b60575126356314a2cd1ed302ab9cf6c\transformed\jetified-appcompat-resources-1.6.1\AndroidManifest.xml:17:1-22:12
@@ -84,7 +84,6 @@ MERGED from [androidx.print:print:1.0.0] C:\Users\joshu\.gradle\caches\transform
 MERGED from [io.grpc:grpc-android:1.52.1] C:\Users\joshu\.gradle\caches\transforms-3\52ba49dc930ef73ab4f3d9863d4b983a\transformed\jetified-grpc-android-1.52.1\AndroidManifest.xml:2:1-11:12
 MERGED from [com.google.firebase:protolite-well-known-types:18.0.0] C:\Users\joshu\.gradle\caches\transforms-3\670a45730a1dc0308078606405f4fb15\transformed\jetified-protolite-well-known-types-18.0.0\AndroidManifest.xml:2:1-11:12
 	package
-		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:3:5-34
 		INJECTED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml
 	android:versionName
 		INJECTED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml
@@ -93,7 +92,7 @@ MERGED from [com.google.firebase:protolite-well-known-types:18.0.0] C:\Users\jos
 	xmlns:android
 		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:2:11-69
 uses-permission#android.permission.INTERNET
-ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:5:5-67
+ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:4:5-67
 MERGED from [com.google.firebase:firebase-storage:20.2.1] C:\Users\joshu\.gradle\caches\transforms-3\cccca247cfdadab52f64b1ebbd8fa4c2\transformed\jetified-firebase-storage-20.2.1\AndroidManifest.xml:26:5-67
 MERGED from [com.google.firebase:firebase-storage:20.2.1] C:\Users\joshu\.gradle\caches\transforms-3\cccca247cfdadab52f64b1ebbd8fa4c2\transformed\jetified-firebase-storage-20.2.1\AndroidManifest.xml:26:5-67
 MERGED from [com.google.firebase:firebase-firestore:24.7.0] C:\Users\joshu\.gradle\caches\transforms-3\ec78bff1de727417d31937415a6a8622\transformed\jetified-firebase-firestore-24.7.0\AndroidManifest.xml:13:5-67
@@ -103,28 +102,34 @@ MERGED from [com.google.firebase:firebase-auth:22.1.0] C:\Users\joshu\.gradle\ca
 MERGED from [com.google.android.recaptcha:recaptcha:18.1.2] C:\Users\joshu\.gradle\caches\transforms-3\fbc78bdf884e16773d2fabd1195a3cba\transformed\jetified-recaptcha-18.1.2\AndroidManifest.xml:7:5-67
 MERGED from [com.google.android.recaptcha:recaptcha:18.1.2] C:\Users\joshu\.gradle\caches\transforms-3\fbc78bdf884e16773d2fabd1195a3cba\transformed\jetified-recaptcha-18.1.2\AndroidManifest.xml:7:5-67
 	android:name
-		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:5:22-64
+		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:4:22-64
 uses-permission#android.permission.NFC
-ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:6:5-62
+ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:5:5-62
 	android:name
-		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:6:22-59
+		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:5:22-59
 uses-permission#android.permission.READ_MEDIA_AUDIO
-ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:7:5-75
+ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:6:5-75
 	android:name
-		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:7:22-72
+		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:6:22-72
 uses-permission#android.permission.READ_EXTERNAL_STORAGE
-ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:9:5-80
+ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:8:5-80
 	android:name
-		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:9:22-77
+		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:8:22-77
+uses-permission#android.permission.WRITE_EXTERNAL_STORAGE
+ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:10:5-108
+	android:maxSdkVersion
+		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:10:79-105
+	android:name
+		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:10:22-78
 uses-feature#android.hardware.nfc
-ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:10:5-82
+ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:11:5-82
 	android:required
-		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:10:55-79
+		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:11:55-79
 	android:name
-		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:10:19-54
+		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:11:19-54
 application
-ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:12:5-44:19
-INJECTED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:12:5-44:19
+ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:13:5-45:19
+INJECTED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:13:5-45:19
 MERGED from [com.google.android.material:material:1.9.0] C:\Users\joshu\.gradle\caches\transforms-3\1d61e41dea0e4f325a9b779d951b3b7f\transformed\material-1.9.0\AndroidManifest.xml:24:5-20
 MERGED from [com.google.android.material:material:1.9.0] C:\Users\joshu\.gradle\caches\transforms-3\1d61e41dea0e4f325a9b779d951b3b7f\transformed\material-1.9.0\AndroidManifest.xml:24:5-20
 MERGED from [androidx.constraintlayout:constraintlayout:2.1.4] C:\Users\joshu\.gradle\caches\transforms-3\ae0d01793d6280b0a28901d9f00c0742\transformed\constraintlayout-2.1.4\AndroidManifest.xml:9:5-20
@@ -176,59 +181,59 @@ MERGED from [androidx.startup:startup-runtime:1.1.1] C:\Users\joshu\.gradle\cach
 	android:appComponentFactory
 		ADDED from [androidx.core:core:1.10.1] C:\Users\joshu\.gradle\caches\transforms-3\833d9d7f7ce5f493572c981757d25c3f\transformed\core-1.10.1\AndroidManifest.xml:28:18-86
 	android:label
-		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:15:9-33
+		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:16:9-41
 	android:allowBackup
-		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:14:9-35
+		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:15:9-35
 	android:theme
-		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:16:9-77
+		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:17:9-77
 	android:name
-		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:13:9-38
-activity#com.parris.yotolite.onboarding.OnboardingActivity
-ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:17:9-25:20
+		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:14:9-38
+activity#com.parris.joshtap.onboarding.OnboardingActivity
+ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:18:9-26:20
 	android:launchMode
-		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:20:13-43
+		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:21:13-43
 	android:exported
-		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:19:13-36
+		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:20:13-36
 	android:name
-		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:18:13-77
+		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:19:13-76
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:21:13-24:29
+ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:22:13-25:29
 action#android.intent.action.MAIN
-ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:22:17-69
+ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:23:17-69
 	android:name
-		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:22:25-66
+		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:23:25-66
 category#android.intent.category.LAUNCHER
-ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:23:17-77
+ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:24:17-77
 	android:name
-		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:23:27-74
-activity#com.parris.yotolite.MainActivity
-ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:27:9-30:46
+		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:24:27-74
+activity#com.parris.joshtap.MainActivity
+ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:28:9-31:46
 	android:launchMode
-		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:30:13-43
+		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:31:13-43
 	android:exported
-		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:29:13-36
+		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:30:13-36
 	android:name
-		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:28:13-60
-activity#com.parris.yotolite.nfc.NfcPlayActivity
-ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:32:9-39:20
+		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:29:13-59
+activity#com.parris.joshtap.nfc.NfcPlayActivity
+ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:33:9-40:20
 	android:launchMode
-		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:35:13-43
+		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:36:13-43
 	android:exported
-		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:34:13-36
+		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:35:13-36
 	android:name
-		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:33:13-67
+		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:34:13-66
 intent-filter#action:name:android.nfc.action.TAG_DISCOVERED
-ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:36:13-38:29
+ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:37:13-39:29
 action#android.nfc.action.TAG_DISCOVERED
-ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:37:17-76
+ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:38:17-76
 	android:name
-		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:37:25-73
-activity#com.parris.yotolite.nfc.NfcWriteActivity
-ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:41:9-43:39
+		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:38:25-73
+activity#com.parris.joshtap.nfc.NfcWriteActivity
+ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:42:9-44:39
 	android:exported
-		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:43:13-36
+		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:44:13-36
 	android:name
-		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:42:13-68
+		ADDED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml:43:13-67
 uses-sdk
 INJECTED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from C:\Users\joshu\Downloads\Projects\ParrisTapApp\JoshTapApp\app\src\main\AndroidManifest.xml
@@ -587,7 +592,7 @@ ADDED from [androidx.core:core:1.10.1] C:\Users\joshu\.gradle\caches\transforms-
 		ADDED from [androidx.core:core:1.10.1] C:\Users\joshu\.gradle\caches\transforms-3\833d9d7f7ce5f493572c981757d25c3f\transformed\core-1.10.1\AndroidManifest.xml:24:9-44
 	android:name
 		ADDED from [androidx.core:core:1.10.1] C:\Users\joshu\.gradle\caches\transforms-3\833d9d7f7ce5f493572c981757d25c3f\transformed\core-1.10.1\AndroidManifest.xml:23:9-81
-permission#com.parris.yotolite.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+permission#com.parris.joshtap.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
 ADDED from [androidx.core:core:1.10.1] C:\Users\joshu\.gradle\caches\transforms-3\833d9d7f7ce5f493572c981757d25c3f\transformed\core-1.10.1\AndroidManifest.xml:22:5-24:47
 	android:protectionLevel
 		ADDED from [androidx.core:core:1.10.1] C:\Users\joshu\.gradle\caches\transforms-3\833d9d7f7ce5f493572c981757d25c3f\transformed\core-1.10.1\AndroidManifest.xml:24:9-44
@@ -597,7 +602,7 @@ uses-permission#${applicationId}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
 ADDED from [androidx.core:core:1.10.1] C:\Users\joshu\.gradle\caches\transforms-3\833d9d7f7ce5f493572c981757d25c3f\transformed\core-1.10.1\AndroidManifest.xml:26:5-97
 	android:name
 		ADDED from [androidx.core:core:1.10.1] C:\Users\joshu\.gradle\caches\transforms-3\833d9d7f7ce5f493572c981757d25c3f\transformed\core-1.10.1\AndroidManifest.xml:26:22-94
-uses-permission#com.parris.yotolite.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
+uses-permission#com.parris.joshtap.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION
 ADDED from [androidx.core:core:1.10.1] C:\Users\joshu\.gradle\caches\transforms-3\833d9d7f7ce5f493572c981757d25c3f\transformed\core-1.10.1\AndroidManifest.xml:26:5-97
 	android:name
 		ADDED from [androidx.core:core:1.10.1] C:\Users\joshu\.gradle\caches\transforms-3\833d9d7f7ce5f493572c981757d25c3f\transformed\core-1.10.1\AndroidManifest.xml:26:22-94

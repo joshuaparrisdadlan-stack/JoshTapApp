@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.parris.yotolite.app-mergeDebugResources-43:/values-uk/values-uk.xml",
+            "outputFile": "com.parris.joshtap.app-mergeDebugResources-43:/values-uk/values-uk.xml",
             "map": [
                 {
                     "source": "C:\\Users\\joshu\\.gradle\\caches\\transforms-3\\3d0cd85736aca48d844c59ef67ae2236\\transformed\\jetified-media3-session-1.4.0\\res\\values-uk\\values-uk.xml",

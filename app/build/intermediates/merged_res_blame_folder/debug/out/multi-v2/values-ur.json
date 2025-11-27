@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.parris.yotolite.app-mergeDebugResources-43:/values-ur/values-ur.xml",
+            "outputFile": "com.parris.joshtap.app-mergeDebugResources-43:/values-ur/values-ur.xml",
             "map": [
                 {
                     "source": "C:\\Users\\joshu\\.gradle\\caches\\transforms-3\\32981ac79ed40701afed74a30a00d1b4\\transformed\\appcompat-1.6.1\\res\\values-ur\\values-ur.xml",
