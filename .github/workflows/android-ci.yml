@@ -18,11 +18,22 @@ jobs:
           distribution: temurin
           java-version: '11'
 
+      - name: Change to Android project dir
+        run: |
+          echo "Changing directory to YotoLiteMVP for Android build steps"
+          cd YotoLiteMVP
+
       - name: Build Debug
-        run: ./gradlew assembleDebug
+        run: |
+          cd YotoLiteMVP
+          chmod +x ./gradlew
+          ./gradlew assembleDebug
 
       - name: Run Unit Tests
-        run: ./gradlew test
+        run: |
+          cd YotoLiteMVP
+          chmod +x ./gradlew
+          ./gradlew test
 
       - name: Run Instrumentation (emulator)
         run: echo "Add instrumentation steps if desired"
