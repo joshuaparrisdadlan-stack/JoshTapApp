@@ -14,6 +14,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import androidx.media3.common.PlaybackException
 
 object PlayerController {
     private const val TAG = "PlayerController"
@@ -21,6 +22,13 @@ object PlayerController {
     private var listener: Player.Listener? = null
     private val scope = CoroutineScope(Dispatchers.Main + Job())
     private var positionJob: Job? = null
+    private var isUpdating = false
+
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage
+
+    private val _isUpdatingPosition = MutableStateFlow(false)
+    val isUpdatingPosition: StateFlow<Boolean> = _isUpdatingPosition
 
     private val _isPlaying = MutableStateFlow(false)
     val isPlaying: StateFlow<Boolean> = _isPlaying
@@ -47,24 +55,30 @@ object PlayerController {
         if (player == null) {
             player = ExoPlayer.Builder(context).build()
             setupPlayerListener()
-            startPositionUpdates()
+            // do not auto-start position updates here; allow resumeUpdates() to control
             AppLog.d(TAG, "ExoPlayer initialized")
         }
     }
 
     fun release() {
-        positionJob?.cancel()
+        stopPositionUpdates()
         listener?.let { player?.removeListener(it) }
         player?.release()
         player = null
         positionJob = null
+        _errorMessage.value = null
+        _isUpdatingPosition.value = false
         scope.coroutineContext[Job]?.cancel()
         AppLog.d(TAG, "ExoPlayer released")
     }
 
     fun playTracks(uris: List<Uri>) {
         val p = player ?: return
-        if (uris.isEmpty()) return
+        if (uris.isEmpty()) {
+            AppLog.w(TAG, "playTracks called with empty list")
+            _errorMessage.value = "No tracks to play"
+            return
+        }
 
         val items = uris.map { MediaItem.fromUri(it) }
         p.setMediaItems(items)
@@ -77,6 +91,9 @@ object PlayerController {
         _hasNext.value = uris.size > 1
 
         AppLog.d(TAG, "Playing ${uris.size} tracks")
+
+        // when starting playback ensure updates are running
+        resumeUpdates()
     }
 
     fun play() {
@@ -119,6 +136,22 @@ object PlayerController {
 
     private fun setupPlayerListener() {
         listener = object : Player.Listener {
+            override fun onPlayerError(error: PlaybackException) {
+                try {
+                    AppLog.e(TAG, "Playback error: ${error.message}")
+                    _errorMessage.value = "Problem playing this track. Skipping..."
+                    val p = player
+                    if (p != null && p.hasNextMediaItem()) {
+                        p.seekToNext()
+                    } else {
+                        p?.pause()
+                        _isPlaying.value = false
+                    }
+                } catch (t: Throwable) {
+                    AppLog.e(TAG, "Error handling playback error: ${t.message}")
+                }
+            }
+
             override fun onPlaybackStateChanged(state: Int) {
                 _isPlaying.value = state == Player.STATE_READY && player?.isPlaying == true
                 when (state) {
@@ -151,12 +184,17 @@ object PlayerController {
     }
     
     private fun startPositionUpdates() {
-        positionJob?.cancel()
+        stopPositionUpdates()
+        _isUpdatingPosition.value = true
         positionJob = scope.launch {
-            while (isActive) {
-                val pos = player?.currentPosition ?: 0L
-                _position.value = pos
-                delay(500)
+            try {
+                while (isActive) {
+                    val pos = player?.currentPosition ?: 0L
+                    _position.value = pos
+                    delay(500)
+                }
+            } finally {
+                _isUpdatingPosition.value = false
             }
         }
     }
@@ -164,5 +202,21 @@ object PlayerController {
     private fun stopPositionUpdates() {
         positionJob?.cancel()
         positionJob = null
+        _isUpdatingPosition.value = false
+    }
+
+    fun pauseUpdates() {
+        stopPositionUpdates()
+    }
+
+    fun resumeUpdates() {
+        val p = player
+        if (p != null && p.isPlaying) {
+            startPositionUpdates()
+        }
+    }
+
+    fun clearError() {
+        _errorMessage.value = null
     }
 }
