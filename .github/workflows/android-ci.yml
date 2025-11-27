@@ -12,11 +12,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Set up JDK 11
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '11'
+          java-version: '17'
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v2
@@ -24,28 +24,15 @@ jobs:
           api-level: 33
           build-tools: '33.0.2'
 
-      - name: Install Gradle (if no wrapper present)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gradle
-
       - name: Build Debug
         run: |
-          chmod +x ./gradlew || true
-          if [ -f ./gradlew ]; then
-            ./gradlew assembleDebug
-          else
-            gradle assembleDebug
-          fi
+          chmod +x ./gradlew
+          ./gradlew assembleDebug
 
       - name: Run Unit Tests
         run: |
-          chmod +x ./gradlew || true
-          if [ -f ./gradlew ]; then
-            ./gradlew test
-          else
-            gradle test
-          fi
+          chmod +x ./gradlew
+          ./gradlew test
 
       - name: Run Instrumentation (emulator)
         run: echo "Add instrumentation steps if desired"
