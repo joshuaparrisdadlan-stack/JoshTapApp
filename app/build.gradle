@@ -4,6 +4,9 @@ plugins {
     id 'kotlin-kapt'
 }
 
+// Apply Google services plugin to enable Firebase features (requires google-services.json)
+apply plugin: 'com.google.gms.google-services'
+
 android {
     compileSdk 35
 
@@ -56,6 +59,12 @@ dependencies {
     implementation 'androidx.media3:media3-exoplayer:1.4.0'
     implementation 'androidx.media3:media3-session:1.4.0'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
+
+    // Firebase (BOM) - add google-services plugin in root build.gradle
+    implementation platform('com.google.firebase:firebase-bom:32.2.0')
+    implementation 'com.google.firebase:firebase-auth-ktx'
+    implementation 'com.google.firebase:firebase-firestore-ktx'
+    implementation 'com.google.firebase:firebase-storage-ktx'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

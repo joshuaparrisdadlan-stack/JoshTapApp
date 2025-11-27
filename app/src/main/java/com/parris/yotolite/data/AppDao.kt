@@ -35,4 +35,8 @@ interface AppDao {
     @Transaction
     @Query("SELECT * FROM cards WHERE token = :token LIMIT 1")
     suspend fun getCardWithTracksByToken(token: String): CardWithTracks?
+
+    @Transaction
+    @Query("SELECT * FROM cards WHERE id = :cardId LIMIT 1")
+    suspend fun getCardWithTracksById(cardId: Long): CardWithTracks?
 }
