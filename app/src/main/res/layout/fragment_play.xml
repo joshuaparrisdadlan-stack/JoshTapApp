@@ -54,4 +54,25 @@
         android:text="Debug: --"
         android:paddingTop="24dp"/>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:paddingTop="24dp">
+
+        <Button
+            android:id="@+id/btnNfcPlay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Scan NFC" />
+
+        <Button
+            android:id="@+id/btnNfcWrite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Write NFC"
+            android:layout_marginLeft="16dp" />
+    </LinearLayout>
+
 </LinearLayout>

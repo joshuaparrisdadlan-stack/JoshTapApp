@@ -3,6 +3,8 @@
     package="com.parris.yotolite">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-feature android:name="android.hardware.nfc" android:required="false" />
 
     <application
         android:name=".MyApplication"
@@ -18,6 +20,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name="com.parris.yotolite.nfc.NfcPlayActivity"
+            android:exported="true"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.nfc.action.TAG_DISCOVERED" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.parris.yotolite.nfc.NfcWriteActivity"
+            android:exported="true" />
     </application>
 
 </manifest>
