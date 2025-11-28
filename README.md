@@ -1,15 +1,17 @@
 # JoshTapApp
 
-This repo contains the JoshTapApp Android project scaffold. It provides a minimum starting point for the NFC-driven audio player app.
-
-Quick build (from project root):
-
-# JoshTapApp
-
 This repository contains the JoshTap Android app: an NFC-driven audio player that writes and reads tokenized NDEF URIs and maps them to local playlists. The app package is `com.parris.joshtap`.
 
 Primary pointers
-- Docs: `docs/` (setup, architecture, release, troubleshooting)
+- Docs: `docs/`
+  - Index: [docs/DOCS_INDEX.md](docs/DOCS_INDEX.md)
+  - Setup: [docs/SETUP.md](docs/SETUP.md)
+  - Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+  - Release: [docs/RELEASE.md](docs/RELEASE.md)
+  - Troubleshooting: [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)
+  - Firebase: [docs/FIREBASE.md](docs/FIREBASE.md)
+  - Branding: [docs/BRANDING.md](docs/BRANDING.md)
+  - Contributing: [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md)
 - Build (Windows / PowerShell): `.\gradlew.bat clean :app:assembleDebug testDebugUnitTest --no-daemon`
 - Install APK to device:
 	```powershell
