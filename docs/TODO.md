@@ -66,4 +66,11 @@ Notes:
 - The assistant-managed TODO was created in the session state; this file mirrors it so the project contains a persistent copy.
 - If you want this file to be updated automatically after each change, I can update it programmatically when I make progress (confirm and I will).
 
-Next recommended action: I can implement the `ViewModel`s and hook the demo import/create-card buttons now so you can test the DB and UI quickly. Reply `go` to proceed or tell me a different next step.
+Next recommended action: remaining work to complete before Play Store beta:
+
+- NFC debug screens and write/read verification (small UI polish)
+- Finalize Player notification & background playback (request notifications permission on Android 13+)
+- Prepare AAB and release signing configuration
+- Optional: Cloud Mode (Firebase) implementation and rules
+
+This `docs/TODO.md` is the single authoritative TODO list for the repo. Update it when you complete items.

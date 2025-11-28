@@ -1,3 +1,16 @@
+# Branding & Naming
+
+- App name: JoshTap (display name may vary per build flavor)
+- Repository / product: JoshTapApp
+- Package name: `com.parris.joshtap`
+- Canonical public URL for NFC tokens: `https://joshtap.app/t/<token>`
+
+Guidelines
+- Use `JoshTap`, `JoshTapApp`, or `joshtap.app` only. Do not reintroduce legacy `yoto` or `yotolite` strings in tracked files.
+- Keep tokens URL-safe and 10–16 chars (lowercase).
+
+Screenshots
+- Name screenshot files clearly: `screenshots/library.png`, `screenshots/cards.png`, `screenshots/play.png`, `screenshots/nfc_write.png`.
 Branding & Store Listing
 
 Suggested store listing copy (short):
