@@ -14,8 +14,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.snackbar.Snackbar
-import com.parris.joshtap.nfc.NfcPlayActivity
-import com.parris.joshtap.nfc.NfcWriteActivity
+import com.parris.joshtap.nfc.NfcViewModel
+import com.parris.joshtap.nfc.NfcViewModelFactory
+import androidx.lifecycle.ViewModelProvider
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.collect
 
@@ -106,12 +107,36 @@ class PlayFragment : Fragment() {
             PlayerController.prev()
         }
 
+        // Use shared NfcViewModel to start scan/write flows
+        val db = com.parris.joshtap.data.AppDatabase.getInstance(requireContext())
+        val repo = com.parris.joshtap.data.AppRepository(db)
+        val nfcVm = ViewModelProvider(requireActivity(), NfcViewModelFactory(repo)).get(NfcViewModel::class.java)
+
         btnNfcPlay.setOnClickListener {
-            startActivity(Intent(requireContext(), NfcPlayActivity::class.java))
+            nfcVm.startScan()
+            Snackbar.make(view, "Ready to scan: tap a card", Snackbar.LENGTH_LONG).show()
         }
 
         btnNfcWrite.setOnClickListener {
-            startActivity(Intent(requireContext(), NfcWriteActivity::class.java))
+            // Navigate to cards UI to pick a card, or instruct user to use Card detail write flow
+            Snackbar.make(view, "To write a card: open a Card and tap Write to NFC", Snackbar.LENGTH_LONG).show()
+        }
+
+        // Observe NFC state to show messages and playback triggers
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            nfcVm.state.collect { st ->
+                when (st) {
+                    is com.parris.joshtap.nfc.NfcUiState.ScanSuccess -> {
+                        Snackbar.make(view, "Card scanned — playing", Snackbar.LENGTH_LONG).show()
+                        nfcVm.reset()
+                    }
+                    is com.parris.joshtap.nfc.NfcUiState.Error -> {
+                        Snackbar.make(view, "NFC Error: ${st.message}", Snackbar.LENGTH_LONG).show()
+                        nfcVm.reset()
+                    }
+                    else -> {}
+                }
+            }
         }
 
         PlayerController.initialize(requireContext())

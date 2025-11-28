@@ -7,7 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * AppLog: lightweight logger with an in-memory ring buffer for quick diagnostics.
  */
 object AppLog {
-    private const val TAG = "YotoLite"
+    private const val TAG = "JoshTap"
     private const val MAX_ENTRIES = 500
     private val buffer = Array<String?>(MAX_ENTRIES) { null }
     private val idx = AtomicInteger(0)

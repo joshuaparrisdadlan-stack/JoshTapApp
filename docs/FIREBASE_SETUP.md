@@ -1,7 +1,7 @@
-Firebase setup for YotoLiteMVP
+Firebase setup for JoshTapApp
 
 1) Create a Firebase project in the Firebase console: https://console.firebase.google.com/
-2) Add an Android app to the project with package name `com.parris.yotolite`.
+2) Add an Android app to the project with package name `com.parris.joshtap`.
 3) Download the `google-services.json` file and place it at:
    - `app/google-services.json`
 4) In the Firebase console enable the following products:

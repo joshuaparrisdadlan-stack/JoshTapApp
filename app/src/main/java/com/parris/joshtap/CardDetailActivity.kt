@@ -1,6 +1,10 @@
 package com.parris.joshtap
 
+import android.content.Intent
+import android.content.IntentFilter
+import android.nfc.NfcAdapter
 import android.os.Bundle
+import com.parris.joshtap.nfc.NfcHandler
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -8,6 +12,9 @@ import androidx.activity.ComponentActivity
 import androidx.appcompat.app.AppCompatActivity
 import android.view.View
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.ViewModelProvider
+import com.parris.joshtap.nfc.NfcViewModel
+import com.parris.joshtap.nfc.NfcViewModelFactory
 import com.google.android.material.snackbar.Snackbar
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -22,12 +29,14 @@ import kotlinx.coroutines.withContext
 
 class CardDetailActivity : AppCompatActivity() {
     private var cardId: Long = -1L
+    // WRITE_NFC_REQUEST removed — writing handled by NfcViewModel + foreground dispatch
     private lateinit var tvCardTitle: TextView
     private lateinit var tvCardToken: TextView
     private lateinit var tvTrackCount: TextView
     private lateinit var rvAssigned: RecyclerView
     private lateinit var btnAdd: Button
     private lateinit var btnSave: Button
+    private lateinit var fabWriteNfc: Button
     private lateinit var adapter: CardTracksAdapter
     private lateinit var touchHelper: ItemTouchHelper
     private data class RemovedTrack(val track: TrackEntity, val index: Int)
@@ -95,6 +104,44 @@ class CardDetailActivity : AppCompatActivity() {
 
         btnAdd.setOnClickListener { showAddDialog() }
         btnSave.setOnClickListener { saveAndFinish() }
+
+        fabWriteNfc = findViewById(R.id.fabWriteNfc)
+        val db = AppDatabase.getInstance(this)
+        val repo = AppRepository(db)
+        val nfcVm = ViewModelProvider(this, com.parris.joshtap.nfc.NfcViewModelFactory(repo)).get(NfcViewModel::class.java)
+
+        fabWriteNfc.setOnClickListener {
+            // confirm then start write mode via ViewModel
+            val name = tvCardTitle.text?.toString() ?: "Card"
+            val tokenText = tvCardToken.text?.toString()?.removePrefix("token: ") ?: ""
+            androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Write to NFC Card")
+                .setMessage("Write '$name' (token: $tokenText) to NFC tag?")
+                .setPositiveButton("Write") { _, _ ->
+                    // start write mode; CardDetail has cardId
+                    nfcVm.startWrite(cardId)
+                    Snackbar.make(findViewById(android.R.id.content), "Tap a card to write this playlist.", Snackbar.LENGTH_LONG).show()
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
+
+        // Observe NFC state for write success/error
+        lifecycleScope.launchWhenStarted {
+            nfcVm.state.collect { st ->
+                when (st) {
+                    is com.parris.joshtap.nfc.NfcUiState.WriteSuccess -> {
+                        Snackbar.make(findViewById(android.R.id.content), "NFC card written successfully!", Snackbar.LENGTH_LONG).show()
+                        nfcVm.reset()
+                    }
+                    is com.parris.joshtap.nfc.NfcUiState.Error -> {
+                        Snackbar.make(findViewById(android.R.id.content), "NFC Error: ${st.message}", Snackbar.LENGTH_LONG).show()
+                        nfcVm.reset()
+                    }
+                    else -> {}
+                }
+            }
+        }
 
         loadCard()
     }
@@ -168,6 +215,39 @@ class CardDetailActivity : AppCompatActivity() {
             Toast.makeText(this@CardDetailActivity, "Changes saved", Toast.LENGTH_SHORT).show()
             setResult(RESULT_OK)
             finish()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        try {
+            val filter = arrayOf(IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED))
+            NfcHandler.enableForegroundDispatch(this, this, filter, arrayOf(arrayOf("android.nfc.tech.Ndef")))
+        } catch (ex: Exception) {
+            // ignore
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        try {
+            NfcHandler.disableForegroundDispatch(this, this)
+        } catch (ex: Exception) {
+            // ignore
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        if (intent.action == NfcAdapter.ACTION_TAG_DISCOVERED) {
+            val tag: android.nfc.Tag? = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)
+            if (tag != null) {
+                // forward to local activity-scoped viewmodel
+                val db = AppDatabase.getInstance(this)
+                val repo = AppRepository(db)
+                val nvm = ViewModelProvider(this, NfcViewModelFactory(repo)).get(NfcViewModel::class.java)
+                nvm.onTag(tag)
+            }
         }
     }
 }

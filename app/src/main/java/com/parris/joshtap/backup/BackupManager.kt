@@ -58,7 +58,7 @@ object BackupManager {
             // Write to public Downloads directory so exported file is visible to user
             val downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
             if (!downloadsDir.exists()) downloadsDir.mkdirs()
-            val zipFile = File(downloadsDir, "yotolite_backup_$timestamp.zip")
+            val zipFile = File(downloadsDir, "joshtap_backup_$timestamp.zip")
 
             ZipOutputStream(zipFile.outputStream()).use { zos ->
                 val entry = ZipEntry(METADATA_FILE)

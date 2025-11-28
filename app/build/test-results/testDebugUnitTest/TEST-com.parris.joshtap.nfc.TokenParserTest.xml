@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.parris.joshtap.nfc.TokenParserTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2025-11-28T00:03:31" hostname="JPARRISDESKTOP" time="0.004">
+  <properties/>
+  <testcase name="testTokenParseFromUri_Invalid" classname="com.parris.joshtap.nfc.TokenParserTest" time="0.0"/>
+  <testcase name="testTokenParseFromUri_Empty" classname="com.parris.joshtap.nfc.TokenParserTest" time="0.0"/>
+  <testcase name="testValidTokenGeneration" classname="com.parris.joshtap.nfc.TokenParserTest" time="0.001"/>
+  <testcase name="testUrlSafeBase64Encoding" classname="com.parris.joshtap.nfc.TokenParserTest" time="0.0"/>
+  <testcase name="testTokenWithSpecialCharacters" classname="com.parris.joshtap.nfc.TokenParserTest" time="0.001"/>
+  <testcase name="testTokenParseFromUri" classname="com.parris.joshtap.nfc.TokenParserTest" time="0.0"/>
+  <testcase name="testNdefRecordPayload" classname="com.parris.joshtap.nfc.TokenParserTest" time="0.002"/>
+  <testcase name="testNdefRecordCreation" classname="com.parris.joshtap.nfc.TokenParserTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

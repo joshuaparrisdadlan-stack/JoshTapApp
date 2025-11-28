@@ -50,7 +50,7 @@ object AppLog {
 
     fun exportDebugReport(): String {
         val sb = StringBuilder()
-        sb.append("=== YotoLite Debug Report ===\n")
+        sb.append("=== JoshTap Debug Report ===\n")
         sb.append("Generated: ${SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(Date())}\n")
         sb.append("Total entries: ${buffer.size}\n")
         sb.append("=== Recent Logs ===\n")

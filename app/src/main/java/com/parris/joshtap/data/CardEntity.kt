@@ -9,5 +9,6 @@ data class CardEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val name: String,
     val token: String,
+    @ColumnInfo(name = "nfc_token") val nfcToken: String? = null,
     @ColumnInfo(name = "created_at") val createdAt: Long = System.currentTimeMillis()
 )

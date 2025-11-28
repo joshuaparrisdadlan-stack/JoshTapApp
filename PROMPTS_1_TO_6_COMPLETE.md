@@ -1,4 +1,4 @@
-# 🎉 YotoLiteMVP Progress: Prompts 1–6 Complete!
+# 🎉 JoshTapApp Progress: Prompts 1–6 Complete!
 
 **Status**: ✅ **50% Complete** (6 of 13 prompts done)
 
@@ -26,10 +26,10 @@
 - ✅ PlayerController stub
 
 ### Prompt 3: NFC Read & Write (NDEF URI)
-- ✅ NfcHandler.kt: Robust NFC operations for Type 2 tags
-- ✅ NfcPlayActivity: Read NFC tag, extract token, retrieve card+tracks, play audio
-- ✅ NfcWriteActivity: Write card token to NFC tag
-- ✅ Token parser: NDEF URI format `https://yotolite.app/play/{token}`
+ - ✅ NfcHandler.kt: Robust NFC operations for Type 2 tags
+ - ✅ NfcPlayActivity: Read NFC tag, extract token, retrieve card+tracks, play audio
+ - ✅ NfcWriteActivity: Write card token to NFC tag
+ - ✅ Token parser: NDEF URI format `https://joshtap.app/play/{token}`
 - ✅ Foreground dispatch in MainActivity
 - ✅ PlayFragment: Scan NFC & Write NFC buttons
 - ✅ AndroidManifest: NFC permissions and intent filters
@@ -75,7 +75,7 @@
 
 ### Package Structure
 ```
-app/src/main/java/com/parris/yotolite/
+app/src/main/java/com/parris/joshtap/
 ├── MainActivity.kt
 ├── PlayFragment.kt, LibraryFragment.kt, CardsFragment.kt
 ├── PlayerController.kt

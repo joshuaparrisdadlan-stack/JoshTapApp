@@ -1,17 +1,17 @@
-Release Guide — YotoLiteMVP
+Release Guide — JoshTapApp
 
 This guide covers producing signed release APKs and basic hardening steps before publishing.
 
 1) Keystore and signing
 - Create a keystore (example):
 
-  keytool -genkeypair -v -storetype PKCS12 -keystore release-keystore.jks -alias yotolite -keyalg RSA -keysize 2048 -validity 9125
+  keytool -genkeypair -v -storetype PKCS12 -keystore release-keystore.jks -alias joshtap -keyalg RSA -keysize 2048 -validity 9125
 
 - Create `keystore.properties` at project root with these values:
 
   storeFile=release-keystore.jks
   storePassword=your_store_password
-  keyAlias=yotolite
+  keyAlias=joshtap
   keyPassword=your_key_password
 
 - Update `app/build.gradle` signingConfigs if you add a release signing block.

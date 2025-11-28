@@ -31,19 +31,6 @@
             android:launchMode="singleTop" />
 
         <activity
-            android:name="com.parris.joshtap.nfc.NfcPlayActivity"
-            android:exported="true"
-            android:launchMode="singleTop">
-            <intent-filter>
-                <action android:name="android.nfc.action.TAG_DISCOVERED" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name="com.parris.joshtap.nfc.NfcWriteActivity"
-            android:exported="true" />
-
-        <activity
             android:name=".CardDetailActivity"
             android:exported="false" />
     </application>

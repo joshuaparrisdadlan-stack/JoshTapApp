@@ -1,55 +1,25 @@
 {
+{
   "version": "2.0.0",
   "tasks": [
     {
       "label": "Build Debug APK",
       "type": "shell",
-      "command": "./gradlew assembleDebug",
-      "problemMatcher": [],
-      "group": "build"
+      "command": "./gradlew :app:assembleDebug",
+      "group": "build",
+      "presentation": { "reveal": "always" }
     },
     {
       "label": "Install Debug APK",
       "type": "shell",
       "command": "adb install -r app/build/outputs/apk/debug/app-debug.apk",
-      "presentation": {
-        "reveal": "always"
-      }
+      "presentation": { "reveal": "always" }
     },
     {
       "label": "Open Logcat (filtered)",
       "type": "shell",
-      "command": "adb logcat -s JoshTapApp:V AndroidRuntime:E",
-      "presentation": {
-        "reveal": "always"
-      }
+      "command": "adb logcat -s JoshTap:V *:S",
+      "presentation": { "reveal": "always" }
     }
   ]
-}
-{
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "label": "Build Debug APK",
-            "type": "shell",
-            "command": "./gradlew :app:assembleDebug",
-            "group": "build",
-            "presentation": {
-                "reveal": "always"
-            }
-        },
-        {
-            "label": "Install Debug APK",
-            "type": "shell",
-            "command": "adb install -r app/build/outputs/apk/debug/app-debug.apk",
-            "presentation": {
-                "reveal": "always"
-            }
-        },
-        {
-            "label": "Open Logcat (filtered)",
-            "type": "shell",
-            "command": "adb logcat -s YotoLite:V *:S"
-        }
-    ]
 }

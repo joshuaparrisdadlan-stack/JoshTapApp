@@ -8,7 +8,7 @@ import java.security.SecureRandom
 
 class TokenParserTest {
     companion object {
-        private const val SCHEME = "https://yotolite.app/play/"
+        private const val SCHEME = "https://joshtap.app/play/"
     }
 
     @Test

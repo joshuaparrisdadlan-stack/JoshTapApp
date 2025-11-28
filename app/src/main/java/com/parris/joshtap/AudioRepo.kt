@@ -7,10 +7,9 @@ import kotlin.math.sin
 
 object AudioRepo {
     // Generate a short sine-wave WAV file and return its file:// URI string
-    fun generateDemoTone(context: Context, durationSeconds: Int = 2): String {
+    fun generateDemoTone(context: Context, durationSeconds: Int = 2, frequency: Double = 880.0): String {
         val sampleRate = 44100
         val numSamples = durationSeconds * sampleRate
-        val frequency = 880.0 // A5 tone
         val amplitude = 32767
 
         val pcm = ShortArray(numSamples)

@@ -37,6 +37,16 @@ class NfcWriteActivity : AppCompatActivity() {
         btnBackHome = findViewById(R.id.btnBackHome)
         btnBackHome.setOnClickListener { finish() }
 
+        // Allow token to be passed in via intent extras (CardDetailActivity)
+        val intentToken = intent?.getStringExtra("CARD_TOKEN")
+        val intentName = intent?.getStringExtra("CARD_NAME")
+        if (!intentToken.isNullOrBlank()) {
+            pendingToken = intentToken
+            etCardToken.setText(intentToken)
+            tvWriteStatus.text = "Ready to write card: ${intentName ?: "(unnamed)"}\nTap an NFC tag to write token: $intentToken"
+            btnWriteCard.isEnabled = false
+        }
+
         btnWriteCard.setOnClickListener {
             val token = etCardToken.text.toString().trim()
             if (token.isEmpty()) {
@@ -93,6 +103,8 @@ class NfcWriteActivity : AppCompatActivity() {
             Toast.makeText(this, "Card written successfully", Toast.LENGTH_SHORT).show()
             pendingToken = null
             etCardToken.text.clear()
+            setResult(RESULT_OK)
+            finish()
         } else {
             tvWriteStatus.text = "Failed to write to tag. Try another tag or format it first."
             Toast.makeText(this, "Write failed", Toast.LENGTH_SHORT).show()

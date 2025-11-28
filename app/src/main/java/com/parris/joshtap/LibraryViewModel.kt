@@ -15,6 +15,29 @@ class LibraryViewModel(application: Application) : AndroidViewModel(application)
     private val _tracks = MutableLiveData<List<com.parris.joshtap.data.TrackEntity>>(emptyList())
     val tracks: LiveData<List<com.parris.joshtap.data.TrackEntity>> = _tracks
 
+    init {
+        viewModelScope.launch {
+            val existing = repo.listTracks()
+            if (existing.isEmpty()) {
+                importDemoTracks()
+            } else {
+                _tracks.postValue(existing)
+            }
+        }
+    }
+
+    private suspend fun importDemoTracks() {
+        // Generate short demo tones programmatically so demo works without assets
+        val uri1 = AudioRepo.generateDemoTone(getApplication(), durationSeconds = 6, frequency = 440.0)
+        val uri2 = AudioRepo.generateDemoTone(getApplication(), durationSeconds = 8, frequency = 523.25)
+        val uri3 = AudioRepo.generateDemoTone(getApplication(), durationSeconds = 7, frequency = 659.25)
+
+        repo.insertTrack("Demo Piano A4", uri1, 6_000L)
+        repo.insertTrack("Demo Piano C5", uri2, 8_000L)
+        repo.insertTrack("Demo Piano E5", uri3, 7_000L)
+        _tracks.postValue(repo.listTracks())
+    }
+
     fun importDemo(onComplete: (Long, String) -> Unit) {
         viewModelScope.launch {
             val uriString = AudioRepo.generateDemoTone(getApplication())

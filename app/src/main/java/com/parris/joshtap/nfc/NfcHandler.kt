@@ -21,7 +21,7 @@ import java.io.IOException
  */
 object NfcHandler {
     private const val TAG = "NfcHandler"
-    private const val SCHEME = "https://yotolite.app/play/"
+    private const val SCHEME = "https://joshtap.app/play/"
     private const val MIME_TYPE = "text/plain"
     // Simple debounce to avoid multiple rapid reads
     private var lastReadAt: Long = 0
@@ -69,7 +69,7 @@ object NfcHandler {
 
     /**
      * Parses token from an NFC tag's NDEF message.
-     * Extracts from URI record: "https://yotolite.app/play/{token}"
+    * Extracts from URI record: "https://joshtap.app/play/{token}"
      */
     suspend fun readTokenFromTag(tag: Tag): String? = withContext(Dispatchers.IO) {
         val now = System.currentTimeMillis()
@@ -94,8 +94,8 @@ object NfcHandler {
     }
 
     /**
-     * Writes token to an NFC tag using NDEF format.
-     * Encodes as URI record: "https://yotolite.app/play/{token}"
+    * Writes token to an NFC tag using NDEF format.
+    * Encodes as URI record: "https://joshtap.app/play/{token}"
      */
     suspend fun writeTokenToTag(tag: Tag, token: String): Boolean = withContext(Dispatchers.IO) {
         try {
@@ -133,8 +133,8 @@ object NfcHandler {
     }
 
     /**
-     * Parses token from NDEF message.
-     * Looks for URI record with scheme "https://yotolite.app/play/{token}"
+    * Parses token from NDEF message.
+    * Looks for URI record with scheme "https://joshtap.app/play/{token}"
      */
     private fun parseTokenFromNdef(message: NdefMessage): String? {
         for (record in message.records) {
@@ -161,7 +161,7 @@ object NfcHandler {
 
     /**
      * Creates an NDEF URI record with the token.
-     * URI format: "https://yotolite.app/play/{token}"
+    * URI format: "https://joshtap.app/play/{token}"
      */
     private fun createUriRecord(token: String): NdefRecord {
         val uri = SCHEME + token
@@ -193,5 +193,34 @@ object NfcHandler {
      */
     fun isNfcSupported(context: Context): Boolean {
         return NfcAdapter.getDefaultAdapter(context) != null
+    }
+
+    // New wrapper-style API returning sealed results (keeps existing helpers for compatibility)
+    sealed class NfcWriteResult {
+        object Success : NfcWriteResult()
+        data class Error(val message: String) : NfcWriteResult()
+    }
+
+    sealed class NfcReadResult {
+        data class Success(val token: String) : NfcReadResult()
+        data class Error(val message: String) : NfcReadResult()
+    }
+
+    suspend fun writeToken(tag: Tag, token: String): NfcWriteResult = withContext(Dispatchers.IO) {
+        try {
+            val ok = writeTokenToTag(tag, token)
+            if (ok) NfcWriteResult.Success else NfcWriteResult.Error("Tag not writable or write failed")
+        } catch (ex: Exception) {
+            NfcWriteResult.Error("Write error: ${ex.message}")
+        }
+    }
+
+    suspend fun readToken(tag: Tag): NfcReadResult = withContext(Dispatchers.IO) {
+        try {
+            val token = readTokenFromTag(tag)
+            if (!token.isNullOrBlank()) NfcReadResult.Success(token) else NfcReadResult.Error("No valid token on tag")
+        } catch (ex: Exception) {
+            NfcReadResult.Error("Read error: ${ex.message}")
+        }
     }
 }

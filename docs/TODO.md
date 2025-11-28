@@ -1,8 +1,8 @@
-# YotoLiteMVP Progress & TODO (mapped to prompts)
+# JoshTapApp Progress & TODO (mapped to prompts)
 
 This file mirrors the in-memory TODO list and maps each item to the original prompt numbers (1–13). It is intended to live in the repo so you can review progress without the assistant tool.
 
-- [x] Prompt 1 — Scaffold Android project
+ - [x] Prompt 1 — Scaffold Android project
   - Status: Completed — project skeleton, Gradle files, `MainActivity`, three fragments, layouts, `README.md`, and VS Code tasks.
   - Files: `settings.gradle`, `build.gradle`, `app/build.gradle`, `app/src/main/` (manifests, layouts, sources).
 

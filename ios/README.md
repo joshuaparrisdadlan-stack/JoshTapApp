@@ -1,9 +1,9 @@
-# iOSYotoLiteMVP (skeleton)
+# iOSJoshTapApp (skeleton)
 
 This folder is a skeleton for the iOS companion app implementing CoreNFC read/write and AVPlayer playback.
 
 Structure:
-- `iOSYotoLiteMVP.xcodeproj` (not included)
+- `iOSJoshTapApp.xcodeproj` (not included)
 - `Sources/` - Swift source files
 
 Notes:

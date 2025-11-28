@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.core.content.edit
 
 object OnboardingPrefs {
-    private const val PREFS_NAME = "yotolite_prefs"
+    private const val PREFS_NAME = "joshtap_prefs"
     private const val KEY_ONBOARDING_DONE = "onboarding_done"
 
     fun isDone(context: Context): Boolean {

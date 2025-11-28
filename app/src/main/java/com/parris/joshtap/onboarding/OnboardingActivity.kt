@@ -55,9 +55,9 @@ class OnboardingActivity : AppCompatActivity() {
         btnContinue = findViewById(R.id.btnContinue)
 
         tvWelcome.text = """
-            Welcome to YotoLite!
+            Welcome to JoshTap!
             
-            YotoLite lets you store audio tracks and play them via NFC cards.
+            JoshTap lets you store audio tracks and play them via NFC cards.
             
             To get started, we need permission to:
         """.trimIndent()

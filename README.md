@@ -1,6 +1,6 @@
-# YotoLiteMVP
+# JoshTapApp
 
-This repo contains the YotoLiteMVP Android project scaffold. It provides a minimum starting point for the NFC-driven audio player app.
+This repo contains the JoshTapApp Android project scaffold. It provides a minimum starting point for the NFC-driven audio player app.
 
 Quick build (from project root):
 

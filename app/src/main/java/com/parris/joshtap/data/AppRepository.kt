@@ -23,6 +23,25 @@ class AppRepository(private val db: AppDatabase) {
 
     suspend fun getCardWithTracksById(cardId: Long): CardWithTracks? = dao.getCardWithTracksById(cardId)
 
+    suspend fun getCardByNfcToken(token: String): CardWithTracks? = dao.getCardWithTracksByNfcToken(token)
+
+    suspend fun getOrCreateTokenForCard(cardId: Long): String {
+        val existing = dao.getCardWithTracksById(cardId)
+        if (existing != null && !existing.card.nfcToken.isNullOrBlank()) {
+            return existing.card.nfcToken!!
+        }
+        // generate new token and persist
+        val newToken = com.parris.joshtap.util.TokenGenerator.generateToken()
+        val card = existing?.card ?: dao.listCards().firstOrNull { it.id == cardId }
+        if (card != null) {
+            // keep existing token field (used elsewhere) if present, otherwise set it to newToken
+            val tokenToSet = if (card.token.isBlank()) newToken else card.token
+            val updated = card.copy(token = tokenToSet, nfcToken = newToken)
+            dao.insertCard(updated)
+        }
+        return newToken
+    }
+
     suspend fun addTrackToCard(cardId: Long, trackId: Long) {
         val existing = dao.getCardWithTracksById(cardId)
         val ids = existing?.tracks?.map { it.id }?.toMutableList() ?: mutableListOf()
