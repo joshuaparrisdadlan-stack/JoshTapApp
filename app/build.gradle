@@ -23,6 +23,12 @@ android {
         versionName "0.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        // Room schema export directory (helps Room export schema for versioning)
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += ["room.schemaLocation": "${project.projectDir}/schemas"]
+            }
+        }
     }
 
     buildTypes {
