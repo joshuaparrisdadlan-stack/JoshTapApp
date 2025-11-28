@@ -1,4 +1,26 @@
 # Built application files
-*.apk *.aab **/build/ **/generated/
-.gradle/ local.properties .idea/ *.iml
-keystore.properties *.jks google-services.json
+# Module /app build outputs
+/app/build/
+/build/
+**/build/
+**/generated/
+
+# Gradle
+/.gradle/
+
+# Local configs
+local.properties
+keystore.properties
+
+# IDE files
+/.idea/
+.vscode/
+*.iml
+
+# Android
+*.apk
+*.aab
+
+# Misc
+google-services.json
+*.jks
